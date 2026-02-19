@@ -7,106 +7,72 @@
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@800&display=swap" rel="stylesheet">
     <style>
-        :root { --bg:#050505; --panel:#0f0f13; --border:#1e1e28; --accent:#c8f53a; --text:#e8e8f0; }
-        *{box-sizing:border-box;margin:0;padding:0;}
-        body{font-family:'Space Mono',monospace;background:var(--bg);color:var(--text);display:flex;height:100vh;overflow:hidden;}
-
-        /* Écran de verrouillage stylisé */
+        :root { --bg:#000; --accent:#c8f53a; --text:#fff; }
+        body { background: var(--bg); color: var(--text); font-family: 'Space Mono', monospace; margin: 0; overflow: hidden; }
+        
+        /* Écran de verrouillage propre */
         #lock-screen { 
-            position:fixed; inset:0; background:#000; z-index:10000; 
-            display:flex; flex-direction:column; align-items:center; justify-content:center; gap:20px; 
+            position: fixed; inset: 0; display: flex; flex-direction: column; 
+            align-items: center; justify-content: center; gap: 30px; z-index: 9999;
         }
-        .logo-main { font-family:'Syne',sans-serif; font-weight:800; font-size:40px; color:var(--accent); letter-spacing:-2px; }
-        .sub-text { color:#555; font-size:10px; text-transform:uppercase; letter-spacing:2px; }
-
-        /* Style personnalisé pour le bouton de connexion Netlify */
-        .netlify-identity-button {
-            background-color: var(--accent) !important;
-            color: black !important;
-            padding: 14px 28px !important;
-            border-radius: 4px !important;
-            text-decoration: none !important;
-            font-weight: bold !important;
-            font-size: 14px !important;
-            text-transform: uppercase !important;
-            transition: 0.3s !important;
+        .logo { font-family: 'Syne', sans-serif; font-size: 40px; color: var(--accent); letter-spacing: -2px; }
+        
+        /* Style du bouton unique */
+        .auth-trigger {
+            background: var(--accent); color: #000; padding: 18px 35px; border: none;
+            border-radius: 5px; font-weight: 800; cursor: pointer; font-size: 14px;
+            text-transform: uppercase; transition: 0.3s;
         }
-        .netlify-identity-button:hover { opacity: 0.8 !important; transform: scale(1.05); }
+        .auth-trigger:hover { transform: scale(1.1); box-shadow: 0 0 20px rgba(200, 245, 58, 0.4); }
 
-        /* Interface principale (cachée par défaut) */
-        #app-content { display:none; width:100%; height:100%; }
-        #sidebar { width:300px; background:var(--panel); border-right:1px solid var(--border); padding:20px; display:flex; flex-direction:column; gap:20px; }
-        #main-view { flex:1; display:grid; grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr; gap:10px; padding:10px; }
-        .box { background:#0a0a0c; border:1px solid #1a1a1a; border-radius:8px; position:relative; overflow:hidden; display:flex; align-items:center; justify-content:center; }
-        canvas { max-width:100%; max-height:100%; }
+        #app-content { display: none; padding: 20px; }
     </style>
 </head>
 <body>
 
 <div id="lock-screen">
-    <div class="logo-main">X-TREME ENGINE</div>
-    <div class="sub-text">Système de protection actif</div>
-    <div data-netlify-identity-button>Chargement du système...</div>
+    <div class="logo">X-TREME ENGINE</div>
+    <div style="color: #444; font-size: 10px; letter-spacing: 3px;">SYSTÈME DE PROTECTION ACTIF</div>
+    
+    <button class="auth-trigger" id="loginBtn">Connexion Tattoo Pro</button>
 </div>
 
 <div id="app-content">
-    <div id="sidebar">
-        <div class="logo-main" style="font-size:18px">X-TREME ENGINE</div>
-        <p style="font-size:10px; color:var(--accent)">Session Tatoueur Active</p>
-        <hr style="border:0; border-top:1px solid var(--border)">
-        <input type="file" id="imgIn" accept="image/*" style="font-size:12px; color:var(--accent)">
-        <button onclick="netlifyIdentity.logout()" style="margin-top:auto; background:none; border:1px solid #333; color:#555; padding:5px; cursor:pointer; font-size:10px">DÉCONNEXION</button>
-    </div>
-    <div id="main-view">
-        <div class="box"><canvas id="c0"></canvas></div>
-        <div class="box"><canvas id="c1"></canvas></div>
-        <div class="box"><canvas id="c2"></canvas></div>
-        <div class="box"><canvas id="c3"></canvas></div>
-    </div>
+    <h1 style="color: var(--accent)">Bienvenue, Chef.</h1>
+    <button onclick="netlifyIdentity.logout()" style="background: none; border: 1px solid #333; color: #555; cursor: pointer;">Déconnexion</button>
+    <hr style="border-color: #222; margin: 20px 0;">
+    <input type="file" id="imgIn">
 </div>
 
 <script>
-    // --- GESTION DE LA CONNEXION ---
-    
-    // On initialise la connexion
+    // Initialisation
     netlifyIdentity.init();
 
-    // Fonction pour ouvrir l'app si connecté
-    function checkUser(user) {
-        if (user) {
-            document.getElementById('lock-screen').style.display = 'none';
-            document.getElementById('app-content').style.display = 'flex';
-        } else {
-            document.getElementById('lock-screen').style.display = 'flex';
-            document.getElementById('app-content').style.display = 'none';
-        }
-    }
+    const loginBtn = document.getElementById('loginBtn');
+    const lockScreen = document.getElementById('lock-screen');
+    const appContent = document.getElementById('app-content');
 
-    // Écouteurs d'événements Netlify
-    netlifyIdentity.on('init', user => checkUser(user));
-    netlifyIdentity.on('login', user => checkUser(user));
-    netlifyIdentity.on('logout', () => checkUser(null));
-
-    // --- MOTEUR GRAPHIQUE SIMPLIFIÉ POUR TEST ---
-    const d = document;
-    const cvs = ['c0', 'c1', 'c2', 'c3'].map(id => d.getElementById(id));
-    const ctx = cvs.map(c => c.getContext('2d'));
-
-    d.getElementById('imgIn').onchange = e => {
-        const reader = new FileReader();
-        reader.onload = ev => {
-            const img = new Image();
-            img.onload = () => {
-                cvs.forEach(c => { c.width = 800; c.height = 800 * (img.height/img.width); });
-                ctx[0].drawImage(img, 0, 0, 800, 800 * (img.height/img.width));
-                // Test noir et blanc rapide
-                ctx[3].filter = 'grayscale(1) contrast(200%)';
-                ctx[3].drawImage(cvs[0], 0, 0);
-            };
-            img.src = ev.target.result;
-        };
-        reader.readAsDataURL(e.target.files[0]);
+    // Force l'ouverture de la fenêtre Netlify au clic
+    loginBtn.onclick = () => {
+        netlifyIdentity.open();
     };
+
+    // Gestion de l'affichage après connexion
+    netlifyIdentity.on('init', user => {
+        if (user) {
+            lockScreen.style.display = 'none';
+            appContent.style.display = 'block';
+        }
+    });
+
+    netlifyIdentity.on('login', user => {
+        lockScreen.style.display = 'none';
+        appContent.style.display = 'block';
+    });
+
+    netlifyIdentity.on('logout', () => {
+        location.reload();
+    });
 </script>
 </body>
 </html>
