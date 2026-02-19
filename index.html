@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>NANO STENCIL v84 — PROTECTION ACTIVE</title>
+<script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@800&display=swap" rel="stylesheet">
+<style>
+    :root { --bg:#050505; --panel:#0f0f13; --border:#1e1e28; --accent:#c8f53a; --accent2:#ff3d6e; --text:#e8e8f0; }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Space Mono',monospace;background:var(--bg);color:var(--text);display:flex;height:100vh;overflow:hidden;}
+
+    /* Écran de verrouillage */
+    #lock-screen { position:fixed; inset:0; background:#000; z-index:10000; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:20px; }
+
+    #sidebar{width:300px;background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:15px;gap:8px;overflow-y:auto;z-index:1000;}
+    .logo{font-family:'Syne',sans-serif;font-weight:800;font-size:16px;color:var(--accent);margin-bottom:5px;letter-spacing:-1px;}
+    .section-title{font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:#888;border-bottom:1px solid var(--border);padding-bottom:3px;margin-top:10px;}
+    
+    .upload-zone{border:2px dashed var(--accent);border-radius:6px;padding:15px;text-align:center;position:relative;cursor:pointer;background:rgba(200,245,58,0.05);}
+    .upload-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+    
+    .param-group { display:flex; flex-direction:column; gap:4px; margin-top:8px; }
+    .param-label { flex:1; display:flex; justify-content:space-between; font-size:9px; color:#aaa; }
+    .param-label span { color:var(--accent); font-weight:bold; }
+    
+    input[type="range"] { -webkit-appearance:none; width:100%; height:3px; background:#222; outline:none; cursor:pointer; border-radius:2px;}
+    input[type="range"]::-webkit-slider-thumb { -webkit-appearance:none; width:14px; height:14px; background:var(--accent); border-radius:50%; border:2px solid #000;}
+
+    #curvesContainer { width: 100%; padding-bottom: 100%; height: 0; position: relative; background: #000; border-top: 1px solid var(--border); }
+    #curvesCanvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; cursor: crosshair; touch-action: none; }
+
+    #main-view { flex:1; display:grid; grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr; gap:10px; padding:10px; background:#000; }
+    .box { background:#0a0a0c; border:1px solid #1a1a1a; border-radius:8px; position:relative; display:flex; align-items:center; justify-content:center; overflow:hidden; }
+    .box-label { position:absolute; top:0; left:0; background:rgba(0,0,0,0.8); font-size:8px; color:var(--accent); padding:5px 10px; z-index:10; border-bottom-right-radius:6px; font-weight:bold; pointer-events: none;}
+    .box.fullscreen { position:fixed!important; top:10px; left:310px; right:10px; bottom:10px; z-index:5000; border:2px solid var(--accent); background: #000; }
+    canvas { max-width:100%; max-height:100%; object-fit:contain; }
+
+    button { border:none; border-radius:4px; font-weight:800; cursor:pointer; text-transform:uppercase; }
+    #auto-curve { background: var(--accent); color: #000; padding: 5px 8px; font-size: 9px; }
+    #auto-adjust { background: var(--accent); color: #000; padding: 10px; font-size: 11px; margin-top: 10px; }
+    #dl { background: var(--accent2); color: #fff; padding: 15px; font-size: 11px; margin-top: auto; }
+</style>
+</head>
+<body>
+
+<div id="lock-screen">
+    <div class="logo" style="font-size:30px">X-TREME ENGINE</div>
+    <div data-netlify-identity-button></div>
+</div>
+
+<div id="sidebar">
+    <div class="logo">X-TREME ENGINE v84</div>
+    <div class="section-title">1. SOURCE & COURBES</div>
+    <div class="upload-zone"><input type="file" id="imgIn" accept="image/*"><div style="font-size:10px; color:var(--accent)">IMPORTER PHOTO</div></div>
+    
+    <div style="background:var(--panel); border:1px solid var(--border); margin-top:10px">
+        <div style="padding:5px; display:flex; justify-content:space-between; align-items:center">
+            <span style="font-size:9px">COURBES</span>
+            <button id="auto-curve">AUTO</button>
+        </div>
+        <div id="curvesContainer"><canvas id="curvesCanvas"></canvas></div>
+    </div>
+
+    <div class="section-title">2. PALETTE GREYWASH</div>
+    <div id="sliders"></div>
+
+    <div class="section-title">3. STENCIL PRECISION</div>
+    <div class="param-group"><div class="param-label">Lissage <span id="v-soft">0.80</span></div><input type="range" id="soft" min="0" max="2.0" value="0.8" step="0.05"></div>
+    <div class="param-group"><div class="param-label">Sensibilité <span id="v-micro">30</span></div><input type="range" id="micro" min="1" max="50" value="30"></div>
+    <div class="param-group"><div class="param-label">Épaisseur <span id="v-thick">0.5</span></div><input type="range" id="thick" min="0.1" max="2.0" value="0.5" step="0.1"></div>
+    
+    <button id="auto-adjust">AUTO-STENCIL</button>
+    <button id="dl">EXPORTER LE STENCIL</button>
+</div>
+
+<div id="main-view">
+    <div class="box" id="box0"><div class="box-label">SOURCE FILTRÉE</div><canvas id="c0"></canvas></div>
+    <div class="box" id="box1"><div class="box-label">ZONES TONS</div><canvas id="c1"></canvas></div>
+    <div class="box" id="box2"><div class="box-label">GRADIENTS</div><canvas id="c2"></canvas></div>
+    <div class="box" id="box3"><div class="box-label">STENCIL FINAL</div><canvas id="c3"></canvas></div>
+</div>
+
+<script>
+// --- LOGIQUE IDENTITÉ ---
+netlifyIdentity.on('init', user => { if(user) d.getElementById('lock-screen').style.display='none'; });
+netlifyIdentity.on('login', user => { d.getElementById('lock-screen').style.display='none'; });
+netlifyIdentity.on('logout', () => { location.reload(); });
+
+const d = document;
+const cvs = ['c0', 'c1', 'c2', 'c3'].map(id => d.getElementById(id));
+const ctx = cvs.map(c => c.getContext('2d', { willReadFrequently: true }));
+let imgSource = null;
+const BASE_TONS = [0, 51, 102, 153, 204, 255];
+
+const curvesCanvas = d.getElementById('curvesCanvas');
+const curvesCtx = curvesCanvas.getContext('2d');
+let curvePoints = [{ x: 0, y: 0 }, { x: 255, y: 255 }];
+let curveLUT = new Uint8Array(256);
+const tempCanvas = d.createElement('canvas');
+const tempCtx = tempCanvas.getContext('2d');
+
+function calculateCurveLUT() {
+    curvePoints.sort((a, b) => a.x - b.x);
+    for (let j = 0; j < curvePoints.length - 1; j++) {
+        const p1 = curvePoints[j], p2 = curvePoints[j + 1];
+        const dx = p2.x - p1.x, dy = p2.y - p1.y;
+        if (dx === 0) continue;
+        for (let x = p1.x; x <= p2.x; x++) {
+            curveLUT[x] = Math.max(0, Math.min(255, Math.round(p1.y + (x - p1.x) * (dy/dx))));
+        }
+    }
+}
+calculateCurveLUT();
+
+// POINTER EVENTS POUR IPAD + PENCIL
+let activeIdx = -1;
+curvesCanvas.onpointerdown = e => {
+    curvesCanvas.setPointerCapture(e.pointerId);
+    const rect = curvesCanvas.getBoundingClientRect();
+    const mx = (e.clientX - rect.left) * (255 / curvesCanvas.width);
+    const my = 255 - (e.clientY - rect.top) * (255 / curvesCanvas.height);
+    activeIdx = curvePoints.findIndex(p => Math.hypot(p.x - mx, p.y - my) < 15);
+    if (activeIdx === -1) {
+        curvePoints.push({ x: Math.round(mx), y: Math.round(my) });
+        curvePoints.sort((a, b) => a.x - b.x);
+        activeIdx = curvePoints.findIndex(p => p.x === Math.round(mx));
+    }
+    draw();
+};
+curvesCanvas.onpointermove = e => {
+    if (activeIdx <= 0 || activeIdx >= curvePoints.length - 1) return;
+    const rect = curvesCanvas.getBoundingClientRect();
+    const mx = (e.clientX - rect.left) * (255 / curvesCanvas.width);
+    const my = 255 - (e.clientY - rect.top) * (255 / curvesCanvas.height);
+    curvePoints[activeIdx].x = Math.max(curvePoints[activeIdx-1].x+2, Math.min(curvePoints[activeIdx+1].x-2, mx));
+    curvePoints[activeIdx].y = Math.max(0, Math.min(255, my));
+    calculateCurveLUT(); draw();
+};
+curvesCanvas.onpointerup = () => activeIdx = -1;
+
+d.getElementById('imgIn').onchange = e => {
+    const reader = new FileReader();
+    reader.onload = ev => {
+        imgSource = new Image();
+        imgSource.onload = () => {
+            const w = 1100; const h = w / (imgSource.width / imgSource.height);
+            cvs.forEach(c => { c.width = w; c.height = h; });
+            tempCanvas.width = imgSource.width; tempCanvas.height = imgSource.height;
+            curvesCanvas.width = curvesCanvas.offsetWidth; curvesCanvas.height = curvesCanvas.offsetHeight;
+            autoAdjustCurve();
+        };
+        imgSource.src = ev.target.result;
+    };
+    reader.readAsDataURL(e.target.files[0]);
+};
+
+function autoAdjustCurve() {
+    if (!imgSource) return;
+    const hC = d.createElement('canvas'); const hCtx = hC.getContext('2d');
+    hC.width = 100; hC.height = 100; hCtx.drawImage(imgSource, 0, 0, 100, 100);
+    const data = hCtx.getImageData(0, 0, 100, 100).data;
+    const hist = new Uint32Array(256);
+    for (let i = 0; i < data.length; i += 4) hist[Math.floor(0.21*data[i] + 0.72*data[i+1] + 0.07*data[i+2])]++;
+    let b = 0, w = 255, s = 0;
+    for (let i = 0; i < 256; i++) { s += hist[i]; if (s > 10) { b = i; break; } }
+    s = 0; for (let i = 255; i >= 0; i--) { s += hist[i]; if (s > 10) { w = i; break; } }
+    curvePoints = [{x:0, y:0}, {x:b, y:0}, {x:w, y:255}, {x:255, y:255}].filter((p, i, self) => i === self.findIndex(t => t.x === p.x)).sort((a,b)=>a.x-b.x);
+    calculateCurveLUT(); draw();
+}
+
+function draw() {
+    const cw = curvesCanvas.width, ch = curvesCanvas.height;
+    curvesCtx.clearRect(0,0,cw,ch);
+    curvesCtx.strokeStyle="#333";
+    for(let i=1;i<4;i++){ curvesCtx.strokeRect(i*cw/4,0,1,ch); curvesCtx.strokeRect(0,i*ch/4,cw,1); }
+    curvesCtx.strokeStyle="#c8f53a"; curvesCtx.beginPath();
+    for(let i=0;i<256;i++) { const x=i*(cw/255), y=ch-(curveLUT[i]*(ch/255)); i===0?curvesCtx.moveTo(x,y):curvesCtx.lineTo(x,y); }
+    curvesCtx.stroke();
+    curvePoints.forEach(p => { curvesCtx.fillStyle="#c8f53a"; curvesCtx.beginPath(); curvesCtx.arc(p.x*(cw/255), ch-(p.y*(ch/255)), 4,0,7); curvesCtx.fill(); });
+
+    if (!imgSource) return;
+    const w = cvs[0].width, h = cvs[0].height;
+    tempCtx.drawImage(imgSource, 0, 0, tempCanvas.width, tempCanvas.height);
+    let idat = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
+    for (let i = 0; i < idat.data.length; i += 4) {
+        idat.data[i] = curveLUT[idat.data[i]]; idat.data[i+1] = curveLUT[idat.data[i+1]]; idat.data[i+2] = curveLUT[idat.data[i+2]];
+    }
+    tempCtx.putImageData(idat, 0, 0);
+    ctx[0].drawImage(tempCanvas, 0, 0, w, h);
+    
+    ctx[2].filter = `grayscale(1) blur(${d.getElementById('soft').value}px)`;
+    ctx[2].drawImage(cvs[0], 0, 0);
+    const px = ctx[2].getImageData(0, 0, w, h).data;
+    const micro = d.getElementById('micro').value, dark = d.getElementById('dark').value;
+
+    ctx[3].fillStyle = "white"; ctx[3].fillRect(0, 0, w, h);
+    const fData = ctx[3].getImageData(0, 0, w, h);
+    for (let i = 0; i < px.length; i += 4) {
+        if (Math.abs(px[i] - px[i+4]) > micro/3) {
+            fData.data[i] = dark; fData.data[i+1] = dark; fData.data[i+2] = dark+50; fData.data[i+3] = 255;
+        }
+    }
+    ctx[3].putImageData(fData, 0, 0);
+}
+
+const sliderBox = d.getElementById('sliders');
+["Noir", "Sombre", "Moyen", "Clair", "X-Clair", "Blanc"].forEach((l, i) => {
+    sliderBox.innerHTML += `<div class="param-group"><div class="param-label">${l}</div><input type="range" id="t${i+1}" min="-100" max="100" value="0"></div>`;
+});
+
+d.querySelectorAll('.box').forEach(b => b.onclick = () => b.classList.toggle('fullscreen'));
+d.getElementById('auto-curve').onclick = autoAdjustCurve;
+d.getElementById('dl').onclick = () => { const a=d.createElement('a'); a.download='stencil.png'; a.href=cvs[3].toDataURL(); a.click(); };
+d.body.oninput = draw;
+window.onload = () => { curvesCanvas.width=curvesCanvas.offsetWidth; curvesCanvas.height=curvesCanvas.offsetHeight; draw(); };
+</script>
+</body>
+</html>
