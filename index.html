@@ -3,133 +3,121 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>X-TREME ENGINE v84</title>
-    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+    <title>X-TREME ENGINE v84 — MASTER ACCESS</title>
     <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@800&display=swap" rel="stylesheet">
     <style>
-        :root { --bg:#000; --accent:#c8f53a; --panel:#0f0f13; --text:#e8e8f0; }
-        *{box-sizing:border-box; margin:0; padding:0;}
-        body{background:var(--bg); color:var(--text); font-family:'Space Mono',monospace; height:100vh; overflow:hidden;}
+        :root { --bg:#050505; --panel:#0f0f13; --border:#1e1e28; --accent:#c8f53a; --accent2:#ff3d6e; --text:#e8e8f0; }
+        *{box-sizing:border-box;margin:0;padding:0;}
+        body{font-family:'Space Mono',monospace;background:var(--bg);color:var(--text);display:flex;height:100vh;overflow:hidden;}
 
-        /* Écran de verrouillage - Design Blindé */
-        #lock-screen { position:fixed; inset:0; background:#000; z-index:999999; display:flex; flex-direction:column; align-items:center; justify-content:center; }
-        .lock-card { background:#0a0a0c; padding:50px; border:1px solid #222; border-radius:20px; text-align:center; box-shadow:0 0 50px rgba(0,0,0,1); }
-        .btn-main { background:var(--accent); color:#000; border:none; padding:20px 40px; font-family:'Syne'; font-weight:800; font-size:18px; cursor:pointer; border-radius:8px; margin-top:30px; width:100%; transition: 0.2s; }
-        .btn-main:hover { transform:scale(1.02); background:#d9ff66; }
+        /* Écran de verrouillage - Saisie Directe */
+        #lock-screen { position:fixed; inset:0; background:#000; z-index:99999; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+        .lock-box { background:#0a0a0c; padding:40px; border:1px solid #222; border-radius:15px; text-align:center; }
+        .logo-main { font-family:'Syne'; font-size:24px; color:var(--accent); margin-bottom:20px; }
+        #passInput { background:#111; border:1px solid #333; color:var(--accent); padding:15px; width:200px; text-align:center; font-size:20px; border-radius:5px; outline:none; }
+        #passInput:focus { border-color:var(--accent); }
+        .btn-unlock { background:var(--accent); color:#000; padding:15px 30px; border:none; border-radius:5px; font-weight:800; cursor:pointer; margin-top:15px; width:100%; }
 
-        /* App cachée */
+        /* Interface Principale */
         #app { display:none; width:100%; height:100%; flex-direction:row; }
+        #sidebar { width:320px; background:var(--panel); border-right:1px solid var(--border); display:flex; flex-direction:column; padding:15px; gap:8px; overflow-y:auto; }
+        .logo { font-family:'Syne',sans-serif; font-weight:800; font-size:16px; color:var(--accent); margin-bottom:5px; }
+        .section-title { font-size:8px; letter-spacing:1.5px; text-transform:uppercase; color:#888; border-bottom:1px solid var(--border); padding-bottom:3px; margin-top:10px; }
         
-        /* Outils & Sidebar */
-        #sidebar { width:320px; background:var(--panel); border-right:1px solid #1e1e28; display:flex; flex-direction:column; padding:15px; gap:10px; overflow-y:auto; }
-        .logo { font-family:'Syne'; color:var(--accent); font-size:16px; font-weight:800; margin-bottom:10px; }
-        .upload-zone { border:2px dashed var(--accent); padding:15px; text-align:center; cursor:pointer; font-size:10px; border-radius:8px; }
-        .upload-zone input { position:absolute; inset:0; opacity:0; cursor:pointer; }
+        .upload-zone { border:2px dashed var(--accent); border-radius:6px; padding:15px; text-align:center; position:relative; cursor:pointer; }
+        .upload-zone input { position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; }
         
-        /* Fenêtres de rendu */
-        #main-view { flex:1; display:grid; grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr; gap:10px; padding:10px; }
-        .box { background:#050505; border:1px solid #111; border-radius:10px; position:relative; overflow:hidden; display:flex; align-items:center; justify-content:center; }
-        .box-label { position:absolute; top:8px; left:8px; font-size:8px; color:var(--accent); background:rgba(0,0,0,0.8); padding:4px 8px; z-index:5; border-radius:4px; }
-        canvas { max-width:100%; max-height:100%; }
-
-        /* Sliders */
-        .param-group { margin-top:10px; display:flex; flex-direction:column; gap:5px; }
-        .param-label { font-size:9px; color:#666; display:flex; justify-content:space-between; }
+        .param-group { display:flex; flex-direction:column; gap:4px; margin-top:8px; }
+        .param-label { display:flex; justify-content:space-between; font-size:9px; color:#aaa; }
         .param-label b { color:var(--accent); }
-        input[type="range"] { -webkit-appearance:none; height:2px; background:#333; }
-        input[type="range"]::-webkit-slider-thumb { -webkit-appearance:none; width:12px; height:12px; background:var(--accent); border-radius:50%; cursor:pointer; }
+        
+        input[type="range"] { -webkit-appearance:none; width:100%; height:3px; background:#222; outline:none; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance:none; width:14px; height:14px; background:var(--accent); border-radius:50%; cursor:pointer;}
 
-        /* Courbes */
-        #curves-container { width:100%; aspect-ratio:1; background:#000; border:1px solid #222; margin-top:10px; }
-        #curvesCanvas { width:100%; height:100%; cursor:crosshair; }
+        #curvesControl { margin-top: 8px; background: #000; border: 1px solid var(--border); border-radius: 4px; overflow:hidden; }
+        #curvesContainer { width: 100%; padding-bottom: 100%; height: 0; position: relative; }
+        #curvesCanvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; cursor: crosshair; touch-action: none; }
+
+        #main-view { flex:1; display:grid; grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr; gap:10px; padding:10px; background:#000; }
+        .box { background:#0a0a0c; border:1px solid #1a1a1a; border-radius:8px; position:relative; display:flex; align-items:center; justify-content:center; overflow:hidden; }
+        .box-label { position:absolute; top:0; left:0; background:rgba(0,0,0,0.8); font-size:8px; color:var(--accent); padding:5px 10px; z-index:10; }
+        canvas { max-width:100%; max-height:100%; object-fit:contain; }
+
+        button { border:none; border-radius:4px; font-weight:800; cursor:pointer; text-transform:uppercase; }
+        #dl { background: var(--accent2); color: #fff; padding: 15px; font-size: 11px; margin-top: auto; }
     </style>
 </head>
 <body>
 
 <div id="lock-screen">
-    <div class="lock-card">
-        <div class="logo" style="font-size:28px;">X-TREME ENGINE</div>
-        <p style="font-size:9px; color:#444; letter-spacing:4px;">AUTHENTICATION REQUIRED</p>
-        <button class="btn-main" id="btnConnect">SE CONNECTER</button>
-        <p id="msg" style="margin-top:20px; font-size:10px; color:#222;">Initialisation du protocole...</p>
+    <div class="lock-box">
+        <div class="logo-main">X-TREME ENGINE</div>
+        <p style="font-size:10px; color:#444; margin-bottom:15px; letter-spacing:2px;">MASTER KEY REQUIRED</p>
+        <input type="password" id="passInput" placeholder="••••">
+        <button class="btn-unlock" onclick="checkPass()">DÉVERROUILLER</button>
+        <p id="err" style="color:red; font-size:10px; margin-top:10px; display:none;">ACCÈS REFUSÉ</p>
     </div>
 </div>
 
 <div id="app">
     <div id="sidebar">
         <div class="logo">X-TREME ENGINE v84</div>
-        <div class="upload-zone"><input type="file" id="imgIn">IMPORTER IMAGE</div>
+        <div class="section-title">1. PHOTO SOURCE</div>
+        <div class="upload-zone"><input type="file" id="imgIn" accept="image/*">IMPORTER</div>
         
-        <p style="font-size:8px; color:#444; margin-top:10px;">COURBES DE TONALITÉ</p>
-        <div id="curves-container"><canvas id="curvesCanvas"></canvas></div>
-        
-        <p style="font-size:8px; color:#444; margin-top:10px;">RÉGLAGES GREYWASH</p>
-        <div id="sliders"></div>
-
-        <p style="font-size:8px; color:#444; margin-top:10px;">STENCIL</p>
-        <div class="param-group">
-            <div class="param-label">Sensibilité <b id="v-micro">30</b></div>
-            <input type="range" id="micro" min="1" max="60" value="30">
+        <div class="section-title">2. COURBES DE TONALITÉ</div>
+        <div id="curvesControl">
+            <div id="curvesContainer"><canvas id="curvesCanvas"></canvas></div>
         </div>
 
-        <button id="dl" style="margin-top:auto; background:#ff3d6e; color:#fff; border:none; padding:15px; border-radius:5px; font-weight:800; cursor:pointer;">TÉLÉCHARGER STENCIL</button>
-        <button onclick="netlifyIdentity.logout()" style="background:none; border:none; color:#333; font-size:9px; text-decoration:underline; cursor:pointer; margin-top:10px;">Quitter la session</button>
+        <div class="section-title">3. PALETTE GREYWASH</div>
+        <div id="sliders"></div>
+
+        <div class="section-title">4. RÉGLAGES STENCIL</div>
+        <div class="param-group"><div class="param-label">Sensibilité <b id="v-micro">30</b></div><input type="range" id="micro" min="1" max="50" value="30"></div>
+        
+        <button id="dl">TÉLÉCHARGER STENCIL</button>
+        <button onclick="location.reload()" style="background:none; color:#444; font-size:9px; margin-top:10px; text-decoration:underline;">VERROUILLER</button>
     </div>
 
     <div id="main-view">
         <div class="box"><div class="box-label">SOURCE</div><canvas id="c0"></canvas></div>
         <div class="box"><div class="box-label">GRADIENTS</div><canvas id="c1"></canvas></div>
-        <div class="box"><div class="box-label">ZONES TONS</div><canvas id="c2"></canvas></div>
-        <div class="box"><div class="box-label">STENCIL FINAL</div><canvas id="c3"></canvas></div>
+        <div class="box"><div class="box-label">GREYWASH</div><canvas id="c2"></canvas></div>
+        <div class="box"><div class="box-label">STENCIL HD</div><canvas id="c3"></canvas></div>
     </div>
 </div>
 
 <script>
-// --- LOGIQUE DE DÉVERROUILLAGE ---
-const btn = document.getElementById('btnConnect');
-const msg = document.getElementById('msg');
-
-// On attend que le script Netlify soit prêt
-window.addEventListener('load', () => {
-    msg.innerText = "Système prêt.";
-    netlifyIdentity.init();
-});
-
-btn.onclick = () => {
-    msg.innerText = "Ouverture de la console...";
-    netlifyIdentity.open(); 
-};
-
-netlifyIdentity.on('login', user => {
-    unlock();
-    netlifyIdentity.close();
-});
-
-// Vérification automatique si déjà logué
-if (netlifyIdentity.currentUser()) { unlock(); }
-
-function unlock() {
-    document.getElementById('lock-screen').style.display = 'none';
-    document.getElementById('app').style.display = 'flex';
-    startEngine();
+// --- SYSTÈME DE MOT DE PASSE ---
+function checkPass() {
+    const input = document.getElementById('passInput').value;
+    const masterKey = "1234"; // CHANGE TON CODE ICI
+    
+    if(input === masterKey) {
+        document.getElementById('lock-screen').style.display = 'none';
+        document.getElementById('app').style.display = 'flex';
+        initEngine();
+    } else {
+        document.getElementById('err').style.display = 'block';
+    }
 }
 
-// --- MOTEUR X-TREME v84 COMPLET ---
-function startEngine() {
+// --- TON MOTEUR COMPLET v84 ---
+function initEngine() {
     const d = document;
     const cvs = ['c0', 'c1', 'c2', 'c3'].map(id => d.getElementById(id));
     const ctx = cvs.map(c => c.getContext('2d', { willReadFrequently: true }));
     let imgSource = null;
-    const BASE_TONS = [0, 51, 102, 153, 204, 255];
 
     const curvesCvs = d.getElementById('curvesCanvas');
     const curvesCtx = curvesCvs.getContext('2d');
     let curvePoints = [{x:0, y:0}, {x:255, y:255}];
     let curveLUT = new Uint8Array(256);
 
-    // Initialisation sliders Greywash
+    // Générer les 6 sliders Greywash
     const sBox = d.getElementById('sliders');
-    ["N", "S", "M", "C", "XC", "B"].forEach((l, i) => {
+    ["Noir", "Sombre", "Moyen", "Clair", "X-Clair", "Blanc"].forEach((l, i) => {
         sBox.innerHTML += `<div class="param-group"><div class="param-label">${l} <b id="v-t${i+1}">0</b></div><input type="range" id="t${i+1}" min="-100" max="100" value="0"></div>`;
     });
 
@@ -141,6 +129,7 @@ function startEngine() {
         }
     }
 
+    curvesCvs.width = 255; curvesCvs.height = 255;
     curvesCvs.onmousedown = e => {
         const r = curvesCvs.getBoundingClientRect();
         const x = (e.clientX - r.left) * (255 / r.width);
@@ -156,7 +145,6 @@ function startEngine() {
             imgSource.onload = () => {
                 const w = 1100, h = w / (imgSource.width / imgSource.height);
                 cvs.forEach(c => { c.width = w; c.height = h; });
-                curvesCvs.width = 255; curvesCvs.height = 255;
                 render();
             };
             imgSource.src = ev.target.result;
@@ -166,7 +154,6 @@ function startEngine() {
 
     function render() {
         updateLUT();
-        // Dessin Courbes
         curvesCtx.fillStyle="#000"; curvesCtx.fillRect(0,0,255,255);
         curvesCtx.strokeStyle="#c8f53a"; curvesCtx.beginPath();
         curvePoints.forEach((p,i) => i===0 ? curvesCtx.moveTo(p.x, 255-p.y) : curvesCtx.lineTo(p.x, 255-p.y));
@@ -177,16 +164,14 @@ function startEngine() {
         ctx[0].drawImage(imgSource, 0, 0, w, h);
         let idat = ctx[0].getImageData(0,0,w,h);
         
-        // Application Courbes
         for(let i=0; i<idat.data.length; i+=4) {
-            let avg = (idat.data[i]+idat.data[i+1]+idat.data[i+2])/3;
-            idat.data[i] = idat.data[i+1] = idat.data[i+2] = curveLUT[avg];
+            let v = (idat.data[i]+idat.data[i+1]+idat.data[i+2])/3;
+            idat.data[i] = idat.data[i+1] = idat.data[i+2] = curveLUT[v];
         }
         ctx[0].putImageData(idat, 0, 0);
 
-        // Greywash & Stencil
         const micro = d.getElementById('micro').value;
-        const pal = BASE_TONS.map((b, i) => Math.max(0, Math.min(255, b + parseInt(d.getElementById('t'+(i+1)).value))));
+        const pal = [0, 51, 102, 153, 204, 255].map((b, i) => Math.max(0, Math.min(255, b + parseInt(d.getElementById('t'+(i+1)).value))));
 
         ctx[2].drawImage(cvs[0], 0, 0);
         let pdat = ctx[2].getImageData(0,0,w,h);
@@ -208,10 +193,8 @@ function startEngine() {
     }
 
     d.body.oninput = e => {
-        if(e.target.id.startsWith('t') || e.target.id === 'micro') {
-            d.getElementById('v-'+e.target.id).innerText = e.target.value;
-            render();
-        }
+        if(d.getElementById('v-'+e.target.id)) d.getElementById('v-'+e.target.id).innerText = e.target.value;
+        render();
     };
     d.getElementById('dl').onclick = () => { const a=d.createElement('a'); a.download='stencil.png'; a.href=cvs[3].toDataURL(); a.click(); };
 }
