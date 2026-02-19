@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>X-TREME ENGINE v84 — UNIVERSAL PRO</title>
+    <title>X-TREME ENGINE v84 — UNIVERSAL</title>
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@800&display=swap" rel="stylesheet">
     <style>
@@ -11,166 +11,43 @@
         *{box-sizing:border-box;margin:0;padding:0;}
         body{font-family:'Space Mono',monospace;background:var(--bg);color:var(--text);display:flex;height:100vh;overflow:hidden;}
 
-        /* Verrouillage */
-        #lock-screen { position:fixed; inset:0; background:#000; z-index:10000; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:20px; }
-        .btn-gold { background:var(--accent); color:#000; padding:15px 30px; border:none; border-radius:4px; font-weight:bold; cursor:pointer; text-transform:uppercase; font-family:'Syne'; }
+        /* Écran de verrouillage - Design minimaliste */
+        #lock-screen { position:fixed; inset:0; background:#000; z-index:10000; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+        .lock-content { text-align:center; }
+        .btn-access { background:var(--accent); color:#000; padding:18px 35px; border:none; border-radius:4px; font-weight:800; cursor:pointer; text-transform:uppercase; font-family:'Syne'; margin-top:20px; transition: 0.3s; }
+        .btn-access:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(200,245,58,0.4); }
 
-        /* Interface */
+        /* Interface Principale (Masquée par défaut) */
         #app { display:none; width:100%; height:100%; flex-direction:row; }
-        #sidebar{width:320px;background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:15px;gap:8px;overflow-y:auto;}
-        .logo{font-family:'Syne',sans-serif;font-weight:800;font-size:16px;color:var(--accent);margin-bottom:5px;letter-spacing:-1px;}
-        .section-title{font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:#888;border-bottom:1px solid var(--border);padding-bottom:3px;margin-top:10px;}
         
-        .upload-zone{border:2px dashed var(--accent);border-radius:6px;padding:15px;text-align:center;position:relative;cursor:pointer;background:rgba(200,245,58,0.05);}
-        .upload-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+        #sidebar { width:320px; background:var(--panel); border-right:1px solid var(--border); display:flex; flex-direction:column; padding:15px; gap:8px; overflow-y:auto; }
+        .logo { font-family:'Syne',sans-serif; font-weight:800; font-size:16px; color:var(--accent); margin-bottom:5px; letter-spacing:-1px; }
+        .section-title { font-size:8px; letter-spacing:1.5px; text-transform:uppercase; color:#888; border-bottom:1px solid var(--border); padding-bottom:3px; margin-top:10px; }
+        
+        .upload-zone { border:2px dashed var(--accent); border-radius:6px; padding:15px; text-align:center; position:relative; cursor:pointer; background:rgba(200,245,58,0.05); }
+        .upload-zone input { position:absolute; inset:0; opacity:0; cursor:pointer; }
         
         .param-group { display:flex; flex-direction:column; gap:4px; margin-top:8px; }
-        .param-label { flex:1; display:flex; justify-content:space-between; font-size:9px; color:#aaa; }
+        .param-label { display:flex; justify-content:space-between; font-size:9px; color:#aaa; }
         .param-label span { color:var(--accent); font-weight:bold; }
         
-        input[type="range"] { -webkit-appearance:none; width:100%; height:3px; background:#222; outline:none; cursor:pointer; border-radius:2px;}
-        input[type="range"]::-webkit-slider-thumb { -webkit-appearance:none; width:14px; height:14px; background:var(--accent); border-radius:50%; border:2px solid #000;}
+        input[type="range"] { -webkit-appearance:none; width:100%; height:3px; background:#222; outline:none; border-radius:2px;}
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance:none; width:14px; height:14px; background:var(--accent); border-radius:50%; border:2px solid #000; cursor:pointer;}
 
-        #curvesControl { margin-top: 8px; width: 100%; background: var(--panel); border: 1px solid var(--border); border-radius: 4px; padding-bottom: 10px; }
-        #curvesControlHeader { display: flex; justify-content: space-between; align-items: center; padding: 5px 5px 5px 10px; }
-        #curvesTitle { font-size: 10px; color: var(--text); font-weight: bold; }
-        #curvesContainer { width: 100%; padding-bottom: 100%; height: 0; position: relative; background: #000; border-top: 1px solid var(--border); }
+        #curvesControl { margin-top: 8px; background: var(--panel); border: 1px solid var(--border); border-radius: 4px; overflow:hidden; }
+        #curvesControlHeader { display: flex; justify-content: space-between; align-items: center; padding: 8px; background: #16161d; }
+        #curvesContainer { width: 100%; padding-bottom: 100%; height: 0; position: relative; background: #000; }
         #curvesCanvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; cursor: crosshair; touch-action: none; }
 
         #main-view { flex:1; display:grid; grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr; gap:10px; padding:10px; background:#000; }
-        .box { background:#0a0a0c; border:1px solid #1a1a1a; border-radius:8px; position:relative; display:flex; align-items:center; justify-content:center; overflow:hidden; }
-        .box-label { position:absolute; top:0; left:0; background:rgba(0,0,0,0.8); font-size:8px; color:var(--accent); padding:5px 10px; z-index:10; border-bottom-right-radius:6px; font-weight:bold; pointer-events: none;}
-        .box.fullscreen { position:fixed!important; top:10px; left:330px; right:10px; bottom:10px; z-index:5000; border:2px solid var(--accent); background: #000; }
+        .box { background:#0a0a0c; border:1px solid #1a1a1a; border-radius:8px; position:relative; display:flex; align-items:center; justify-content:center; overflow:hidden; cursor: pointer; }
+        .box-label { position:absolute; top:0; left:0; background:rgba(0,0,0,0.8); font-size:8px; color:var(--accent); padding:5px 10px; z-index:10; border-bottom-right-radius:6px; font-weight:bold; }
+        
+        /* Zoom fenêtre */
+        .box.fullscreen { position:fixed!important; inset:15px; left:335px; z-index:5000; border:2px solid var(--accent); background: #000; }
         canvas { max-width:100%; max-height:100%; object-fit:contain; }
 
-        button { border:none; border-radius:4px; font-weight:800; cursor:pointer; text-transform:uppercase; }
-        #auto-curve, #reset-curve { padding: 5px 8px; font-size: 9px; }
-        #auto-curve { background: var(--accent); color: #000; margin-right: 4px; }
-        #reset-curve { background: #444; color: #fff; }
-        #auto-adjust { background: var(--accent); color: #000; padding: 10px; font-size: 11px; margin-top: 10px; }
-        #dl { background: var(--accent2); color: #fff; padding: 15px; font-size: 11px; margin-top: auto; }
-        .logout { font-size: 8px; color: #444; background: none; margin-top: 5px; text-decoration: underline; }
-    </style>
-</head>
-<body>
-
-<div id="lock-screen">
-    <div class="logo" style="font-size:32px">X-TREME ENGINE</div>
-    <button class="btn-gold" onclick="netlifyIdentity.open()">ACCÈS RÉSERVÉ TATTOO PRO</button>
-</div>
-
-<div id="app">
-    <div id="sidebar">
-        <div class="logo">X-TREME ENGINE v84</div>
-        <div class="section-title">1. PRÉ-TRAITEMENT SOURCE</div>
-        <div class="upload-zone"><input type="file" id="imgIn" accept="image/*"><div style="font-size:10px; color:var(--accent)">IMPORTER PHOTO</div></div>
-        
-        <div id="curvesControl">
-            <div id="curvesControlHeader">
-                <div id="curvesTitle">TONAL CURVES</div>
-                <div><button id="auto-curve">AUTO</button><button id="reset-curve">RESET</button></div>
-            </div>
-            <div id="curvesContainer"><canvas id="curvesCanvas"></canvas></div>
-        </div>
-
-        <div class="section-title">2. PALETTE GREYWASH</div>
-        <div id="sliders"></div>
-
-        <div class="section-title">3. STENCIL PRECISION</div>
-        <div class="param-group"><div class="param-label">Lissage <span id="v-soft">0.80</span></div><input type="range" id="soft" min="0" max="2.0" value="0.8" step="0.05"></div>
-        <div class="param-group"><div class="param-label">Sensibilité <span id="v-micro">30</span></div><input type="range" id="micro" min="1" max="50" value="30"></div>
-        <div class="param-group"><div class="param-label">Épaisseur <span id="v-thick">0.5</span></div><input type="range" id="thick" min="0.1" max="2.0" value="0.5" step="0.1"></div>
-        <div class="param-group"><div class="param-label">Intensité Bleu <span id="v-dark">60</span></div><input type="range" id="dark" min="0" max="100" value="60"></div>
-        
-        <button id="auto-adjust">AUTO-STENCIL</button>
-        <button id="dl">EXPORTER LE STENCIL</button>
-        <button class="logout" onclick="netlifyIdentity.logout()">DÉCONNEXION</button>
-    </div>
-
-    <div id="main-view">
-        <div class="box" id="box0"><div class="box-label">SOURCE FILTRÉE</div><canvas id="c0"></canvas></div>
-        <div class="box" id="box1"><div class="box-label">ZONES TONS</div><canvas id="c1"></canvas></div>
-        <div class="box" id="box2"><div class="box-label">GRADIENTS</div><canvas id="c2"></canvas></div>
-        <div class="box" id="box3"><div class="box-label">STENCIL FINAL</div><canvas id="c3"></canvas></div>
-    </div>
-</div>
-
-<script>
-// --- SÉCURITÉ NETLIFY ---
-netlifyIdentity.init();
-netlifyIdentity.on('init', user => { if(user) showApp(); });
-netlifyIdentity.on('login', user => { showApp(); netlifyIdentity.close(); });
-netlifyIdentity.on('logout', () => { location.reload(); });
-
-function showApp() {
-    document.getElementById('lock-screen').style.display = 'none';
-    document.getElementById('app').style.display = 'flex';
-    initEngine();
-}
-
-// --- MOTEUR X-TREME v84 ---
-function initEngine() {
-    const d = document;
-    const cvs = ['c0', 'c1', 'c2', 'c3'].map(id => d.getElementById(id));
-    const ctx = cvs.map(c => c.getContext('2d', { willReadFrequently: true }));
-    let imgSource = null;
-    const BASE_TONS = [0, 51, 102, 153, 204, 255];
-
-    const curvesCanvas = d.getElementById('curvesCanvas');
-    const curvesCtx = curvesCanvas.getContext('2d');
-    let curvePoints = [{ x: 0, y: 0 }, { x: 255, y: 255 }];
-    let curveLUT = new Uint8Array(256); 
-
-    const tempCanvas = d.createElement('canvas');
-    const tempCtx = tempCanvas.getContext('2d', { willReadFrequently: true });
-
-    function calculateCurveLUT() {
-        curvePoints.sort((a, b) => a.x - b.x);
-        for (let j = 0; j < curvePoints.length - 1; j++) {
-            const p1 = curvePoints[j], p2 = curvePoints[j + 1];
-            const dx = p2.x - p1.x;
-            const dy = p2.y - p1.y;
-            if (dx === 0) { curveLUT[p1.x] = p1.y; continue; }
-            for (let x = p1.x; x <= p2.x; x++) {
-                curveLUT[x] = Math.max(0, Math.min(255, Math.round(p1.y + (x - p1.x) * (dy/dx))));
-            }
-        }
-    }
-    calculateCurveLUT();
-
-    // Interaction Courbes
-    let activePtIdx = -1;
-    curvesCanvas.onpointerdown = e => {
-        curvesCanvas.setPointerCapture(e.pointerId);
-        const rect = curvesCanvas.getBoundingClientRect();
-        const mx = (e.clientX - rect.left) * (255 / curvesCanvas.width);
-        const my = 255 - (e.clientY - rect.top) * (255 / curvesCanvas.height);
-        activePtIdx = curvePoints.findIndex(p => Math.hypot(p.x - mx, p.y - my) < 15);
-        if (activePtIdx === -1 && mx > 5 && mx < 250) {
-            curvePoints.push({ x: Math.round(mx), y: Math.round(my) });
-            curvePoints.sort((a, b) => a.x - b.x);
-            activePtIdx = curvePoints.findIndex(p => p.x === Math.round(mx));
-        }
-        drawAll();
-    };
-
-    curvesCanvas.onpointermove = e => {
-        if (activePtIdx === -1) return;
-        if (activePtIdx === 0 || activePtIdx === curvePoints.length - 1) return;
-        const rect = curvesCanvas.getBoundingClientRect();
-        const mx = (e.clientX - rect.left) * (255 / curvesCanvas.width);
-        const my = 255 - (e.clientY - rect.top) * (255 / curvesCanvas.height);
-        const prevX = curvePoints[activePtIdx - 1].x;
-        const nextX = curvePoints[activePtIdx + 1].x;
-        curvePoints[activePtIdx].x = Math.max(prevX + 2, Math.min(nextX - 2, mx));
-        curvePoints[activePtIdx].y = Math.max(0, Math.min(255, my));
-        calculateCurveLUT(); drawAll();
-    };
-
-    curvesCanvas.onpointerup = () => { activePtIdx = -1; };
-
-    const sliderBox = d.getElementById('sliders');
-    sliderBox.innerHTML = ""; // Clear
-    ["Noir", "Sombre", "Moyen", "Clair", "X-Clair", "Blanc"].forEach((label, i) => {
-        const id = i + 1;
-        sliderBox.innerHTML += `<div class="param-group"><div class="param-label
+        button { border:none; border-radius:4px; font-weight:800; cursor:pointer; text-transform:uppercase; transition: 0.2s; }
+        #auto-curve { background: var(--accent); color: #000; padding: 4px 8px; font-size: 9px; }
+        #reset-curve { background: #444; color: #fff; padding: 4px 8px; font-size: 9px; }
+        #auto-adjust { background: var(--accent); color: #000; padding: 12px; font
