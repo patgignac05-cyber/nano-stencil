@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>X-TREME ENGINE v84 — PRO</title>
+    <title>X-TREME ENGINE v84 — PRO COMPLETE</title>
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@800&display=swap" rel="stylesheet">
     <style>
@@ -15,59 +15,75 @@
         #lock-screen { position:fixed; inset:0; background:#000; z-index:10000; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:20px; }
         .btn-gold { background:var(--accent); color:#000; padding:15px 30px; border:none; border-radius:4px; font-weight:bold; cursor:pointer; text-transform:uppercase; }
 
-        /* App */
+        /* App Layout */
         #app { display:none; width:100%; height:100%; flex-direction:row; }
-        #sidebar{width:300px;background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:15px;gap:8px;overflow-y:auto;}
-        .logo{font-family:'Syne',sans-serif;font-weight:800;font-size:16px;color:var(--accent);margin-bottom:5px;letter-spacing:-1px;}
+        #sidebar{width:320px;background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:20px;gap:15px;overflow-y:auto;}
+        .logo{font-family:'Syne',sans-serif;font-weight:800;font-size:18px;color:var(--accent);margin-bottom:10px;letter-spacing:-1px;}
         
-        .upload-zone{border:2px dashed var(--accent);border-radius:6px;padding:15px;text-align:center;position:relative;cursor:pointer;background:rgba(200,245,58,0.05); margin-bottom:10px;}
+        /* Outils */
+        .section-title { font-size:10px; color:#555; text-transform:uppercase; letter-spacing:2px; border-bottom:1px solid #222; padding-bottom:5px; margin-top:10px;}
+        .upload-zone{border:2px dashed var(--accent);border-radius:6px;padding:20px;text-align:center;position:relative;cursor:pointer;background:rgba(200,245,58,0.05);}
         .upload-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
         
-        #curvesContainer { width: 100%; padding-bottom: 100%; height: 0; position: relative; background: #000; border: 1px solid var(--border); margin: 10px 0;}
-        #curvesCanvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; cursor: crosshair; touch-action: none; }
+        #curvesContainer { width: 100%; height: 200px; background: #000; border: 1px solid var(--border); position: relative; margin: 10px 0;}
+        #curvesCanvas { width: 100%; height: 100%; cursor: crosshair; touch-action: none; }
 
+        .param-group { display: flex; flex-direction: column; gap: 8px; }
+        .param-label { display: flex; justify-content: space-between; font-size: 10px; color: var(--accent); }
+        input[type="range"] { -webkit-appearance: none; width: 100%; height: 4px; background: #222; border-radius: 2px; outline: none; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; background: var(--accent); border-radius: 50%; cursor: pointer; border: 2px solid #000; }
+
+        /* Visualisation */
         #main-view { flex:1; display:grid; grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr; gap:10px; padding:10px; background:#000; }
         .box { background:#0a0a0c; border:1px solid #1a1a1a; border-radius:8px; position:relative; display:flex; align-items:center; justify-content:center; overflow:hidden; }
-        .box-label { position:absolute; top:0; left:0; background:rgba(0,0,0,0.8); font-size:8px; color:var(--accent); padding:5px 10px; z-index:10; font-weight:bold; }
+        .box-label { position:absolute; top:0; left:0; background:rgba(200,245,58,0.9); font-size:9px; color:#000; padding:4px 8px; z-index:10; font-weight:bold; }
         canvas { max-width:100%; max-height:100%; object-fit:contain; }
 
-        .param-group { margin-bottom: 10px; }
-        .param-label { display: flex; justify-content: space-between; font-size: 9px; color: #888; margin-bottom: 4px; }
-        input[type="range"] { width: 100%; height: 3px; background: #222; -webkit-appearance: none; outline: none; }
-        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; background: var(--accent); border-radius: 50%; }
-
-        #dl { background: var(--accent2); color: #fff; padding: 15px; font-weight: bold; border: none; border-radius: 4px; cursor: pointer; margin-top: auto; }
-        .logout { font-size: 9px; color: #444; background: none; border: none; cursor: pointer; margin-top: 10px; text-decoration: underline; }
+        #dl { background: var(--accent2); color: #fff; padding: 18px; font-weight: bold; border: none; border-radius: 4px; cursor: pointer; margin-top: auto; text-transform: uppercase; letter-spacing: 1px; }
+        .logout-btn { font-size: 10px; color: #444; background: none; border: none; cursor: pointer; margin-top: 10px; text-decoration: underline; }
     </style>
 </head>
 <body>
 
 <div id="lock-screen">
-    <div class="logo" style="font-size:32px">X-TREME ENGINE</div>
-    <button class="btn-gold" onclick="netlifyIdentity.open()">Authentification</button>
+    <div class="logo" style="font-size:40px">X-TREME ENGINE</div>
+    <button class="btn-gold" onclick="netlifyIdentity.open()">DÉVERROUILLER LE SYSTÈME</button>
 </div>
 
 <div id="app">
     <div id="sidebar">
         <div class="logo">X-TREME ENGINE v84</div>
-        <div class="upload-zone"><input type="file" id="imgIn" accept="image/*"><div style="font-size:10px; color:var(--accent)">OUVRIR IMAGE</div></div>
         
-        <div class="param-label">COURBE DE TONALITÉ</div>
-        <div id="curvesContainer"><canvas id="curvesCanvas"></canvas></div>
+        <div class="section-title">Source</div>
+        <div class="upload-zone">
+            <input type="file" id="imgIn" accept="image/*">
+            <div style="font-size:11px; color:var(--accent)">+ IMPORTER IMAGE</div>
+        </div>
 
+        <div class="section-title">Courbe de Tonalité</div>
+        <div id="curvesContainer">
+            <canvas id="curvesCanvas"></canvas>
+        </div>
+
+        <div class="section-title">Réglages Stencil</div>
         <div class="param-group">
-            <div class="param-label">SEUIL STENCIL <span id="v-thresh">128</span></div>
+            <div class="param-label">SEUIL NOIR <span id="v-thresh">128</span></div>
             <input type="range" id="thresh" min="0" max="255" value="128">
         </div>
 
-        <button id="dl" onclick="downloadImage()">EXPORTER STENCIL</button>
-        <button class="logout" onclick="netlifyIdentity.logout()">DÉCONNEXION</button>
+        <div class="param-group">
+            <div class="param-label">DÉTAILS / NETTETÉ <span id="v-sharp">1.5</span></div>
+            <input type="range" id="sharp" min="0" max="5" step="0.1" value="1.5">
+        </div>
+
+        <button id="dl" onclick="downloadImage()">EXPORTER LE STENCIL (HD)</button>
+        <button class="logout-btn" onclick="netlifyIdentity.logout()">Fermer la session</button>
     </div>
 
     <div id="main-view">
-        <div class="box"><div class="box-label">ORIGINAL</div><canvas id="c0"></canvas></div>
-        <div class="box"><div class="box-label">COURBES</div><canvas id="c1"></canvas></div>
-        <div class="box"><div class="box-label">DÉTAILS</div><canvas id="c2"></canvas></div>
+        <div class="box"><div class="box-label">SOURCE</div><canvas id="c0"></canvas></div>
+        <div class="box"><div class="box-label">TRAITEMENT COURBES</div><canvas id="c1"></canvas></div>
+        <div class="box"><div class="box-label">EXTRACTION DÉTAILS</div><canvas id="c2"></canvas></div>
         <div class="box"><div class="box-label">STENCIL FINAL</div><canvas id="c3"></canvas></div>
     </div>
 </div>
@@ -82,79 +98,16 @@
     function showApp() {
         document.getElementById('lock-screen').style.display = 'none';
         document.getElementById('app').style.display = 'flex';
-        initCanvas();
+        initCurves();
     }
 
-    // --- MOTEUR ---
+    // --- MOTEUR GRAPHIQUE ---
     const d = document;
     const cvs = ['c0', 'c1', 'c2', 'c3'].map(id => d.getElementById(id));
     const ctx = cvs.map(c => c.getContext('2d', { willReadFrequently: true }));
     let imgSource = null;
 
-    function initCanvas() {
-        const curvesC = d.getElementById('curvesCanvas');
-        curvesC.width = curvesC.offsetWidth; curvesC.height = curvesC.offsetHeight;
-    }
-
-    d.getElementById('imgIn').onchange = e => {
-        const reader = new FileReader();
-        reader.onload = ev => {
-            imgSource = new Image();
-            imgSource.onload = () => {
-                const aspect = imgSource.height / imgSource.width;
-                cvs.forEach(c => { c.width = 1000; c.height = 1000 * aspect; });
-                draw();
-            };
-            imgSource.src = ev.target.result;
-        };
-        reader.readAsDataURL(e.target.files[0]);
-    };
-
-    d.getElementById('thresh').oninput = (e) => {
-        d.getElementById('v-thresh').innerText = e.target.value;
-        draw();
-    };
-
-    function draw() {
-        if (!imgSource) return;
-        const w = cvs[0].width, h = cvs[0].height;
-        
-        // Original
-        ctx[0].drawImage(imgSource, 0, 0, w, h);
-        
-        // Courbes/Grayscale
-        ctx[1].filter = 'grayscale(1) contrast(120%)';
-        ctx[1].drawImage(cvs[0], 0, 0);
-
-        // Détails (Filtre High Pass simplifié)
-        ctx[2].filter = 'grayscale(1) invert(100%) blur(1px)';
-        ctx[2].drawImage(cvs[1], 0, 0);
-        ctx[2].globalCompositeOperation = 'overlay';
-        ctx[2].drawImage(cvs[1], 0, 0);
-        ctx[2].globalCompositeOperation = 'source-over';
-
-        // Stencil Final
-        const t = d.getElementById('thresh').value;
-        ctx[3].filter = `grayscale(1) brightness(1.2) contrast(1000%) threshold(${t})`; // Note: threshold est simulé
-        ctx[3].drawImage(cvs[1], 0, 0);
-        
-        // Simulation manuelle du seuil (Threshold)
-        const idata = ctx[3].getImageData(0,0,w,h);
-        const data = idata.data;
-        for(let i=0; i<data.length; i+=4) {
-            const avg = (data[i] + data[i+1] + data[i+2]) / 3;
-            const val = avg > t ? 255 : 0;
-            data[i] = data[i+1] = data[i+2] = val;
-        }
-        ctx[3].putImageData(idata, 0, 0);
-    }
-
-    function downloadImage() {
-        const link = document.createElement('a');
-        link.download = 'stencil-xtreme.png';
-        link.href = cvs[3].toDataURL();
-        link.click();
-    }
-</script>
-</body>
-</html>
+    // --- LOGIQUE DES COURBES ---
+    const curvesC = d.getElementById('curvesCanvas');
+    const curvesCtx = curvesC.getContext('2d');
+    let curvePoints = [{x:0, y:200}, {x:200, y:0}]; // x, y (0-200)
