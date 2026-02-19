@@ -7,49 +7,56 @@
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
     <style>
         body { background: #000; color: #fff; font-family: sans-serif; display: flex; height: 100vh; align-items: center; justify-content: center; margin: 0; }
-        .container { text-align: center; }
-        .btn-gold { background: #c8f53a; color: #000; border: none; padding: 15px 30px; border-radius: 5px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
-        #app { display: none; }
+        .gate { text-align: center; border: 1px solid #222; padding: 40px; border-radius: 10px; }
+        .btn-gold { background: #c8f53a; color: #000; border: none; padding: 15px 30px; border-radius: 5px; font-weight: bold; cursor: pointer; text-transform: uppercase; margin-top: 20px; }
+        #app { display: none; text-align: center; }
     </style>
 </head>
 <body>
 
-    <div id="gate" class="container">
-        <h1 style="color:#c8f53a">X-TREME ENGINE</h1>
-        <button class="btn-gold" onclick="netlifyIdentity.open()">Connexion / Inscription</button>
+    <div id="gate" class="gate">
+        <h1 style="color:#c8f53a; margin:0;">X-TREME ENGINE</h1>
+        <p id="status-text" style="color:#666; font-size:12px; margin-top:10px;">SYSTÈME DE PROTECTION ACTIF</p>
+        <button class="btn-gold" onclick="netlifyIdentity.open()">S'identifier / Confirmer</button>
     </div>
 
-    <div id="app" class="container">
+    <div id="app">
         <h1 style="color:#c8f53a">ACCÈS AUTORISÉ</h1>
-        <button onclick="netlifyIdentity.logout()" style="background:none; color:grey; border:none; cursor:pointer;">Se déconnecter</button>
+        <p>Moteur de Stencil v84 prêt.</p>
+        <button onclick="netlifyIdentity.logout()" style="background:none; color:red; border:none; cursor:pointer; margin-top:50px;">DÉCONNEXION</button>
     </div>
 
     <script>
-        // Initialisation avec l'adresse explicite pour éviter les erreurs de lien
-        netlifyIdentity.init({
-            APIUrl: 'https://x-tremeengine.netlify.app/.netlify/identity'
+        // Initialisation du widget
+        netlifyIdentity.init();
+
+        // ÉTAPE CRUCIALE : On écoute si l'utilisateur arrive d'un email (Confirmation ou Recovery)
+        netlifyIdentity.on('init', user => {
+            if (user) {
+                showApp();
+            } else {
+                // Si on détecte un token dans l'URL, on force l'ouverture pour valider
+                if (window.location.hash.includes("token=")) {
+                    document.getElementById('status-text').innerText = "VALIDATION DU COMPTE EN COURS...";
+                    netlifyIdentity.open();
+                }
+            }
         });
 
-        // Détection des jetons dans l'URL (pour les emails de mot de passe oublié)
-        if (window.location.hash) {
-            netlifyIdentity.open();
-        }
-
-        // Quand l'utilisateur se connecte
+        // Une fois connecté ou confirmé
         netlifyIdentity.on('login', user => {
-            document.getElementById('gate').style.display = 'none';
-            document.getElementById('app').style.display = 'block';
+            showApp();
             netlifyIdentity.close();
         });
 
-        // Vérification au chargement
-        const user = netlifyIdentity.currentUser();
-        if (user) {
+        netlifyIdentity.on('logout', () => {
+            location.reload();
+        });
+
+        function showApp() {
             document.getElementById('gate').style.display = 'none';
             document.getElementById('app').style.display = 'block';
         }
-
-        netlifyIdentity.on('logout', () => { location.reload(); });
     </script>
 </body>
 </html>
