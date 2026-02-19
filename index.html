@@ -11,125 +11,116 @@
         *{box-sizing:border-box;margin:0;padding:0;}
         body{font-family:'Space Mono',monospace;background:var(--bg);color:var(--text);display:flex;height:100vh;overflow:hidden;}
 
-        /* Écran de verrouillage - Forcé au premier plan */
+        /* Écran de verrouillage - Priorité maximale */
         #lock-screen { position:fixed; inset:0; background:#000; z-index:99999; display:flex; flex-direction:column; align-items:center; justify-content:center; }
-        .btn-access { background:var(--accent); color:#000; padding:18px 35px; border:none; border-radius:4px; font-weight:800; cursor:pointer; text-transform:uppercase; font-family:'Syne'; margin-top:20px; box-shadow: 0 0 15px rgba(200,245,58,0.3); }
+        .btn-access { background:var(--accent); color:#000; padding:20px 40px; border:none; border-radius:4px; font-weight:800; cursor:pointer; text-transform:uppercase; font-family:'Syne'; margin-top:20px; font-size:16px; transition: 0.3s; }
 
-        /* Interface Principale - Cachée au départ */
-        #app { display:none; width:100%; height:100%; flex-direction:row; opacity:0; transition: opacity 0.5s; }
+        /* Interface Principale - Cachée par défaut via display:none */
+        #app { display:none; width:100%; height:100%; flex-direction:row; }
         
         #sidebar { width:320px; background:var(--panel); border-right:1px solid var(--border); display:flex; flex-direction:column; padding:15px; gap:8px; overflow-y:auto; }
-        .logo { font-family:'Syne',sans-serif; font-weight:800; font-size:16px; color:var(--accent); margin-bottom:5px; letter-spacing:-1px; }
+        .logo { font-family:'Syne',sans-serif; font-weight:800; font-size:16px; color:var(--accent); margin-bottom:5px; }
         .section-title { font-size:8px; letter-spacing:1.5px; text-transform:uppercase; color:#888; border-bottom:1px solid var(--border); padding-bottom:3px; margin-top:10px; }
         
-        .upload-zone { border:2px dashed var(--accent); border-radius:6px; padding:15px; text-align:center; position:relative; cursor:pointer; background:rgba(200,245,58,0.05); }
+        .upload-zone { border:2px dashed var(--accent); border-radius:6px; padding:15px; text-align:center; position:relative; cursor:pointer; }
         .upload-zone input { position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%; }
         
         .param-group { display:flex; flex-direction:column; gap:4px; margin-top:8px; }
         .param-label { display:flex; justify-content:space-between; font-size:9px; color:#aaa; }
         .param-label span { color:var(--accent); font-weight:bold; }
         
-        input[type="range"] { -webkit-appearance:none; width:100%; height:3px; background:#222; outline:none; border-radius:2px;}
-        input[type="range"]::-webkit-slider-thumb { -webkit-appearance:none; width:14px; height:14px; background:var(--accent); border-radius:50%; border:2px solid #000; cursor:pointer;}
+        input[type="range"] { -webkit-appearance:none; width:100%; height:3px; background:#222; outline:none; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance:none; width:14px; height:14px; background:var(--accent); border-radius:50%; cursor:pointer;}
 
         #curvesControl { margin-top: 8px; background: var(--panel); border: 1px solid var(--border); border-radius: 4px; overflow:hidden; }
-        #curvesControlHeader { display: flex; justify-content: space-between; align-items: center; padding: 8px; background: #16161d; }
         #curvesContainer { width: 100%; padding-bottom: 100%; height: 0; position: relative; background: #000; }
         #curvesCanvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; cursor: crosshair; touch-action: none; }
 
         #main-view { flex:1; display:grid; grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr; gap:10px; padding:10px; background:#000; }
         .box { background:#0a0a0c; border:1px solid #1a1a1a; border-radius:8px; position:relative; display:flex; align-items:center; justify-content:center; overflow:hidden; }
-        .box-label { position:absolute; top:0; left:0; background:rgba(0,0,0,0.8); font-size:8px; color:var(--accent); padding:5px 10px; z-index:10; border-bottom-right-radius:6px; font-weight:bold; }
+        .box-label { position:absolute; top:0; left:0; background:rgba(0,0,0,0.8); font-size:8px; color:var(--accent); padding:5px 10px; z-index:10; }
         
         .box.fullscreen { position:fixed!important; inset:15px; left:335px; z-index:5000; border:2px solid var(--accent); background: #000; }
         canvas { max-width:100%; max-height:100%; object-fit:contain; }
 
         button { border:none; border-radius:4px; font-weight:800; cursor:pointer; text-transform:uppercase; }
-        #auto-curve { background: var(--accent); color: #000; padding: 4px 8px; font-size: 9px; }
-        #reset-curve { background: #444; color: #fff; padding: 4px 8px; font-size: 9px; }
         #auto-adjust { background: var(--accent); color: #000; padding: 12px; font-size: 11px; margin-top: 10px; }
         #dl { background: var(--accent2); color: #fff; padding: 15px; font-size: 11px; margin-top: auto; }
-        .logout-btn { background: none; color: #444; font-size: 9px; margin-top: 10px; text-decoration: underline; text-align: center; width: 100%; cursor: pointer; }
+        .logout-btn { background: none; color: #444; font-size: 9px; margin-top: 10px; text-decoration: underline; text-align: center; cursor: pointer; }
     </style>
 </head>
 <body>
 
 <div id="lock-screen">
     <div class="logo" style="font-size:30px; margin-bottom:10px;">X-TREME ENGINE</div>
-    <div style="font-size:10px; color:#555; letter-spacing:2px;">SYSTÈME DE PROTECTION PRO</div>
-    <button class="btn-access" id="loginBtn">ACCÉDER AU MOTEUR</button>
+    <div style="font-size:10px; color:#555; letter-spacing:2px;">SYSTÈME DE PROTECTION ACTIF</div>
+    <button class="btn-access" id="loginTrigger">DÉVERROUILLER LE MOTEUR</button>
 </div>
 
 <div id="app">
     <div id="sidebar">
         <div class="logo">X-TREME ENGINE v84</div>
-        <div class="section-title">1. SOURCE</div>
+        <div class="section-title">1. IMPORTATION</div>
         <div class="upload-zone"><input type="file" id="imgIn" accept="image/*"><div style="font-size:10px; color:var(--accent)">IMPORTER PHOTO</div></div>
         
+        <div class="section-title">2. COURBES DE TONALITÉ</div>
         <div id="curvesControl">
-            <div id="curvesControlHeader">
-                <div style="font-size: 9px; font-weight: bold;">TONAL CURVES</div>
-                <div><button id="auto-curve">AUTO</button> <button id="reset-curve">RESET</button></div>
-            </div>
             <div id="curvesContainer"><canvas id="curvesCanvas"></canvas></div>
         </div>
 
-        <div class="section-title">2. GREYWASH PALETTE</div>
+        <div class="section-title">3. PALETTE GREYWASH</div>
         <div id="sliders"></div>
 
-        <div class="section-title">3. PRECISION</div>
-        <div class="param-group"><div class="param-label">Lissage <span id="v-soft">0.80</span></div><input type="range" id="soft" min="0" max="2.0" value="0.8" step="0.05"></div>
+        <div class="section-title">4. RÉGLAGES STENCIL</div>
         <div class="param-group"><div class="param-label">Sensibilité <span id="v-micro">30</span></div><input type="range" id="micro" min="1" max="50" value="30"></div>
         <div class="param-group"><div class="param-label">Épaisseur <span id="v-thick">0.5</span></div><input type="range" id="thick" min="0.1" max="2.0" value="0.5" step="0.1"></div>
-        <div class="param-group"><div class="param-label">Intensité Bleu <span id="v-dark">60</span></div><input type="range" id="dark" min="0" max="100" value="60"></div>
         
-        <button id="auto-adjust">AUTO-STENCIL</button>
-        <button id="dl">EXPORTER LE STENCIL</button>
-        <div class="logout-btn" id="logoutBtn">DÉCONNEXION</div>
+        <button id="auto-adjust">MODE AUTO</button>
+        <button id="dl">EXPORTER STENCIL HD</button>
+        <div class="logout-btn" id="logoutTrigger">DÉCONNEXION</div>
     </div>
 
     <div id="main-view">
-        <div class="box" id="box0"><div class="box-label">SOURCE FILTRÉE</div><canvas id="c0"></canvas></div>
-        <div class="box" id="box1"><div class="box-label">ZONES TONS</div><canvas id="c1"></canvas></div>
+        <div class="box" id="box0"><div class="box-label">SOURCE</div><canvas id="c0"></canvas></div>
+        <div class="box" id="box1"><div class="box-label">GREYWASH</div><canvas id="c1"></canvas></div>
         <div class="box" id="box2"><div class="box-label">GRADIENTS</div><canvas id="c2"></canvas></div>
         <div class="box" id="box3"><div class="box-label">STENCIL FINAL</div><canvas id="c3"></canvas></div>
     </div>
 </div>
 
 <script>
-// --- GESTION DE LA CONNEXION SÉCURISÉE ---
-const loginBtn = document.getElementById('loginBtn');
-const logoutBtn = document.getElementById('logoutBtn');
-const lockScreen = document.getElementById('lock-screen');
+// --- LOGIQUE DE SÉCURITÉ ---
+const lock = document.getElementById('lock-screen');
 const app = document.getElementById('app');
 
-loginBtn.addEventListener('click', () => netlifyIdentity.open());
-logoutBtn.addEventListener('click', () => netlifyIdentity.logout());
+// Initialisation
+netlifyIdentity.init();
 
-// Déclencheur au chargement
-netlifyIdentity.on('init', user => {
-    if (user) { unlock(); }
-});
+// Si déjà connecté, on affiche direct
+const currentUser = netlifyIdentity.currentUser();
+if (currentUser) {
+    unlockApp();
+}
 
-// Déclencheur à la connexion
-netlifyIdentity.on('login', user => {
-    unlock();
+document.getElementById('loginTrigger').onclick = () => netlifyIdentity.open();
+document.getElementById('logoutTrigger').onclick = () => netlifyIdentity.logout();
+
+netlifyIdentity.on('login', () => {
+    unlockApp();
     netlifyIdentity.close();
 });
 
-// Déclencheur à la déconnexion
 netlifyIdentity.on('logout', () => {
     location.reload();
 });
 
-function unlock() {
-    lockScreen.style.display = 'none';
+function unlockApp() {
+    lock.style.display = 'none';
     app.style.display = 'flex';
-    setTimeout(() => { app.style.opacity = '1'; }, 50);
-    initEngine(); // Lance le moteur de stencil
+    initEngine();
 }
 
-// --- MOTEUR X-TREME v84 (UNIVERSAL) ---
+// --- MOTEUR DE RENDU ---
 function initEngine() {
     const d = document;
     const cvs = ['c0', 'c1', 'c2', 'c3'].map(id => d.getElementById(id));
@@ -156,37 +147,22 @@ function initEngine() {
         }
     }
 
-    // Gestion Courbes
-    let activePtIdx = -1;
+    // Interaction Courbes simple
     curvesCanvas.onpointerdown = e => {
-        curvesCanvas.setPointerCapture(e.pointerId);
         const rect = curvesCanvas.getBoundingClientRect();
         const mx = (e.clientX - rect.left) * (255 / curvesCanvas.width);
         const my = 255 - (e.clientY - rect.top) * (255 / curvesCanvas.height);
-        activePtIdx = curvePoints.findIndex(p => Math.hypot(p.x - mx, p.y - my) < 15);
-        if (activePtIdx === -1 && mx > 10 && mx < 245) {
+        if (mx > 10 && mx < 245) {
             curvePoints.push({ x: Math.round(mx), y: Math.round(my) });
-            curvePoints.sort((a, b) => a.x - b.x);
-            activePtIdx = curvePoints.findIndex(p => p.x === Math.round(mx));
+            drawAll();
         }
-        drawAll();
     };
-    curvesCanvas.onpointermove = e => {
-        if (activePtIdx === -1 || activePtIdx === 0 || activePtIdx === curvePoints.length - 1) return;
-        const rect = curvesCanvas.getBoundingClientRect();
-        const mx = (e.clientX - rect.left) * (255 / curvesCanvas.width);
-        const my = 255 - (e.clientY - rect.top) * (255 / curvesCanvas.height);
-        curvePoints[activePtIdx].x = Math.max(curvePoints[activePtIdx-1].x+5, Math.min(curvePoints[activePtIdx+1].x-5, mx));
-        curvePoints[activePtIdx].y = Math.max(0, Math.min(255, my));
-        drawAll();
-    };
-    curvesCanvas.onpointerup = () => activePtIdx = -1;
 
-    // Sliders Greywash
+    // Générer sliders greywash
     const sliderBox = d.getElementById('sliders');
     sliderBox.innerHTML = "";
     ["Noir", "Sombre", "Moyen", "Clair", "X-Clair", "Blanc"].forEach((label, i) => {
-        sliderBox.innerHTML += `<div class="param-group"><div class="param-label">${label} <span id="v-t${i+1}">0</span></div><input type="range" id="t${i+1}" min="-120" max="120" value="0"></div>`;
+        sliderBox.innerHTML += `<div class="param-group"><div class="param-label">${label} <span id="v-t${i+1}">0</span></div><input type="range" id="t${i+1}" min="-100" max="100" value="0"></div>`;
     });
 
     d.getElementById('imgIn').onchange = e => {
@@ -194,7 +170,7 @@ function initEngine() {
         reader.onload = ev => {
             imgSource = new Image();
             imgSource.onload = () => {
-                const w = 1100, h = w / (imgSource.width / imgSource.height);
+                const w = 1000, h = w / (imgSource.width / imgSource.height);
                 cvs.forEach(c => { c.width = w; c.height = h; });
                 tempCanvas.width = imgSource.width; tempCanvas.height = imgSource.height;
                 curvesCanvas.width = curvesCanvas.offsetWidth; curvesCanvas.height = curvesCanvas.offsetHeight;
@@ -207,21 +183,6 @@ function initEngine() {
 
     function drawAll() {
         calculateCurveLUT();
-        // Graphique Courbes
-        const cw = curvesCanvas.width, ch = curvesCanvas.height;
-        curvesCtx.clearRect(0, 0, cw, ch);
-        curvesCtx.strokeStyle = '#c8f53a'; curvesCtx.lineWidth = 2;
-        curvesCtx.beginPath();
-        for (let i = 0; i < 256; i++) {
-            const gx = i * (cw / 255), gy = ch - (curveLUT[i] * (ch / 255));
-            i === 0 ? curvesCtx.moveTo(gx, gy) : curvesCtx.lineTo(gx, gy);
-        }
-        curvesCtx.stroke();
-        curvePoints.forEach(p => {
-            curvesCtx.fillStyle = '#c8f53a'; curvesCtx.beginPath();
-            curvesCtx.arc(p.x*(cw/255), ch-(p.y*(ch/255)), 4, 0, 7); curvesCtx.fill();
-        });
-
         if (!imgSource) return;
         const w = cvs[0].width, h = cvs[0].height;
         tempCtx.drawImage(imgSource, 0, 0, tempCanvas.width, tempCanvas.height);
@@ -232,11 +193,10 @@ function initEngine() {
         tempCtx.putImageData(idat, 0, 0);
         ctx[0].drawImage(tempCanvas, 0, 0, w, h);
 
-        const micro = d.getElementById('micro').value, soft = d.getElementById('soft').value;
-        const thick = d.getElementById('thick').value, dark = d.getElementById('dark').value;
+        const micro = d.getElementById('micro').value;
         const pal = BASE_TONS.map((b, i) => Math.max(0, Math.min(255, b + parseInt(d.getElementById('t'+(i+1)).value))));
 
-        ctx[2].filter = `grayscale(1) blur(${soft}px)`;
+        ctx[2].filter = `grayscale(1) blur(1px)`;
         ctx[2].drawImage(cvs[0], 0, 0);
         const px = ctx[2].getImageData(0, 0, w, h).data;
         
@@ -252,18 +212,15 @@ function initEngine() {
         for (let y = 1; y < h - 1; y++) {
             for (let x = 1; x < w - 1; x++) {
                 let i = (y * w + x) * 4;
-                if (Math.abs(px[i] - px[i+4]) > micro/3 || Math.abs(px[i] - px[i+w*4]) > micro/3) {
-                    fData.data[i] = dark; fData.data[i+1] = dark; fData.data[i+2] = dark+40;
-                    fData.data[i+3] = thick < 1 ? thick*255 : 255;
+                if (Math.abs(px[i] - px[i+4]) > micro/2) {
+                    fData.data[i] = 40; fData.data[i+1] = 40; fData.data[i+2] = 120; fData.data[i+3] = 255;
                 }
             }
         }
         ctx[3].putImageData(fData, 0, 0);
     }
 
-    d.getElementById('auto-curve').onclick = () => { curvePoints = [{x:0,y:0},{x:80,y:20},{x:180,y:230},{x:255,y:255}]; drawAll(); };
-    d.getElementById('reset-curve').onclick = () => { curvePoints=[{x:0,y:0},{x:255,y:255}]; drawAll(); };
-    d.getElementById('dl').onclick = () => { const a=d.createElement('a'); a.download='stencil-pro.png'; a.href=cvs[3].toDataURL(); a.click(); };
+    d.getElementById('dl').onclick = () => { const a=d.createElement('a'); a.download='stencil.png'; a.href=cvs[3].toDataURL(); a.click(); };
     d.body.oninput = e => { if(e.target.type==='range'){ d.getElementById('v-'+e.target.id).innerText = e.target.value; drawAll(); } };
 }
 </script>
