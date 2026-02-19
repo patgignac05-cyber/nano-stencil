@@ -3,67 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>X-TREME ENGINE — RESET</title>
+    <title>X-TREME ENGINE — PRO</title>
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
     <style>
-        body { 
-            background: #000; color: #fff; font-family: sans-serif; 
-            margin: 0; display: flex; align-items: center; justify-content: center; height: 100vh; 
-        }
-        #login-box { text-align: center; z-index: 10; }
-        .btn-main { 
-            background: #c8f53a; color: #000; padding: 20px 40px; border: none; 
-            border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 16px; 
-            text-transform: uppercase; margin-top: 20px;
-        }
-        #app-content { display: none; padding: 20px; text-align: center; }
-        /* Correction pour forcer l'affichage du widget au-dessus de tout */
-        .netlify-identity-widget-pane { z-index: 99999 !important; }
+        body { background: #000; color: #fff; font-family: sans-serif; display: flex; height: 100vh; align-items: center; justify-content: center; margin: 0; }
+        .container { text-align: center; }
+        .btn-gold { background: #c8f53a; color: #000; border: none; padding: 15px 30px; border-radius: 5px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+        #app { display: none; }
     </style>
 </head>
 <body>
 
-    <div id="login-box">
-        <h1 style="color:#c8f53a; font-size: 40px; margin:0;">X-TREME ENGINE</h1>
-        <p style="color:#666; letter-spacing: 2px;">PROTECTION SYSTÈME</p>
-        <button class="btn-main" id="startBtn">Accéder au Logiciel</button>
+    <div id="gate" class="container">
+        <h1 style="color:#c8f53a">X-TREME ENGINE</h1>
+        <button class="btn-gold" onclick="netlifyIdentity.open()">Connexion / Inscription</button>
     </div>
 
-    <div id="app-content">
+    <div id="app" class="container">
         <h1 style="color:#c8f53a">ACCÈS AUTORISÉ</h1>
-        <p>Bienvenue dans votre interface de stencil.</p>
-        <button onclick="netlifyIdentity.logout()" style="background:#222; color:#fff; border:none; padding:10px; cursor:pointer;">Se déconnecter</button>
+        <button onclick="netlifyIdentity.logout()" style="background:none; color:grey; border:none; cursor:pointer;">Se déconnecter</button>
     </div>
 
     <script>
-        // Initialisation propre
-        netlifyIdentity.init();
+        // Initialisation avec l'adresse explicite pour éviter les erreurs de lien
+        netlifyIdentity.init({
+            APIUrl: 'https://x-tremeengine.netlify.app/.netlify/identity'
+        });
 
-        const startBtn = document.getElementById('startBtn');
-
-        // Force l'ouverture au clic
-        startBtn.onclick = () => {
+        // Détection des jetons dans l'URL (pour les emails de mot de passe oublié)
+        if (window.location.hash) {
             netlifyIdentity.open();
-        };
-
-        // Gestion des états
-        netlifyIdentity.on('init', user => {
-            if (user) showApp();
-        });
-
-        netlifyIdentity.on('login', user => {
-            showApp();
-            netlifyIdentity.close(); // Ferme la fenêtre automatiquement après succès
-        });
-
-        netlifyIdentity.on('logout', () => {
-            location.reload();
-        });
-
-        function showApp() {
-            document.getElementById('login-box').style.display = 'none';
-            document.getElementById('app-content').style.display = 'block';
         }
+
+        // Quand l'utilisateur se connecte
+        netlifyIdentity.on('login', user => {
+            document.getElementById('gate').style.display = 'none';
+            document.getElementById('app').style.display = 'block';
+            netlifyIdentity.close();
+        });
+
+        // Vérification au chargement
+        const user = netlifyIdentity.currentUser();
+        if (user) {
+            document.getElementById('gate').style.display = 'none';
+            document.getElementById('app').style.display = 'block';
+        }
+
+        netlifyIdentity.on('logout', () => { location.reload(); });
     </script>
 </body>
 </html>
