@@ -3,81 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>X-TREME ENGINE — TOOLS FIX</title>
+    <title>X-TREME ENGINE — TOOLS FINAL</title>
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
     <style>
-        :root { --accent: #c8f53a; --bg: #0a0a0a; }
-        body { background: var(--bg); color: white; font-family: sans-serif; margin: 0; display: flex; height: 100vh; }
+        :root { --accent: #c8f53a; --bg: #050505; --panel: #0f0f13; }
+        body { background: var(--bg); color: white; font-family: sans-serif; margin: 0; display: flex; height: 100vh; overflow: hidden; }
         
-        /* Menu Latéral */
+        /* Menu Latéral Corrigé */
         #sidebar { 
-            width: 300px; background: #111; border-right: 2px solid #222; 
-            display: flex; flex-direction: column; padding: 20px; gap: 20px; 
-            overflow-y: auto; /* Permet de défiler si l'écran est petit */
+            width: 320px; background: var(--panel); border-right: 2px solid #1e1e28; 
+            display: flex; flex-direction: column; padding: 25px; gap: 15px; 
+            overflow-y: auto; z-index: 100;
         }
 
-        /* Groupes d'outils */
-        .tool-group { 
-            background: #1a1a1a; padding: 15px; border-radius: 8px; 
-            border: 1px solid #333; display: block !important; 
+        .logo { color: var(--accent); font-weight: 900; font-size: 20px; margin-bottom: 20px; letter-spacing: -1px; }
+
+        /* Conteneurs d'outils - Forcer l'affichage */
+        .tool-box { 
+            background: #16161d; padding: 18px; border-radius: 10px; 
+            border: 1px solid #252531; margin-bottom: 5px; display: block !important;
         }
         
-        h3 { font-size: 11px; color: var(--accent); margin: 0 0 10px 0; text-transform: uppercase; letter-spacing: 1px; }
+        h3 { font-size: 10px; color: var(--accent); margin: 0 0 12px 0; text-transform: uppercase; letter-spacing: 2px; }
         
-        input[type="range"] { width: 100%; cursor: pointer; accent-color: var(--accent); }
-        
-        .val-display { float: right; color: #666; font-family: monospace; }
+        .val { float: right; color: #666; font-family: monospace; font-size: 12px; }
 
-        /* Zone de visualisation */
-        #main { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 10px; }
-        .canvas-box { background: #000; border: 1px solid #222; position: relative; display: flex; align-items: center; justify-content: center; }
-        canvas { max-width: 100%; max-height: 100%; }
+        input[type="range"] { 
+            width: 100%; cursor: pointer; accent-color: var(--accent); 
+            height: 6px; background: #000; border-radius: 5px; -webkit-appearance: none;
+        }
+
+        /* Zone de travail */
+        #main { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 15px; background: #000; }
+        .canvas-container { background: #080808; border-radius: 12px; border: 1px solid #151515; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .label { position: absolute; top: 15px; left: 15px; font-size: 10px; font-weight: bold; color: var(--accent); background: rgba(0,0,0,0.7); padding: 5px 10px; border-radius: 4px; z-index: 5; }
+        canvas { max-width: 95%; max-height: 95%; object-fit: contain; }
         
-        .btn-dl { background: #ff3d6e; color: white; border: none; padding: 15px; font-weight: bold; cursor: pointer; border-radius: 4px; }
+        .btn-dl { background: #ff3d6e; color: white; border: none; padding: 20px; font-weight: bold; cursor: pointer; border-radius: 8px; font-size: 13px; text-transform: uppercase; margin-top: 10px; }
+        .btn-dl:hover { background: #ff5c85; }
     </style>
 </head>
 <body>
 
 <div id="sidebar">
-    <h2 style="color:var(--accent); margin:0;">X-TREME ENGINE</h2>
+    <div class="logo">X-TREME ENGINE</div>
     
-    <div class="tool-group">
+    <div class="tool-box">
         <h3>1. Fichier Source</h3>
-        <input type="file" id="imgIn" style="font-size: 10px;">
+        <input type="file" id="imgIn" style="width: 100%; color: #555; font-size: 12px;">
     </div>
 
-    <div class="tool-group">
-        <h3>2. Contraste (Seuil) <span id="v-thresh" class="val-display">128</span></h3>
+    <div class="tool-box">
+        <h3>2. Contraste (Seuil) <span id="v-thresh" class="val">128</span></h3>
         <input type="range" id="thresh" min="0" max="255" value="128">
     </div>
 
-    <div class="tool-group">
-        <h3>3. Épaisseur Traits <span id="v-bold" class="val-display">1</span></h3>
+    <div class="tool-box">
+        <h3>3. Épaisseur <span id="v-bold" class="val">1</span></h3>
         <input type="range" id="bold" min="1" max="10" step="0.5" value="1">
     </div>
 
-    <div class="tool-group">
-        <h3>4. Netteté <span id="v-sharp" class="val-display">0</span></h3>
+    <div class="tool-box">
+        <h3>4. Netteté <span id="v-sharp" class="val">0</span></h3>
         <input type="range" id="sharp" min="0" max="20" value="0">
     </div>
 
-    <button class="btn-dl" onclick="download()">TÉLÉCHARGER LE STENCIL</button>
-    <button onclick="netlifyIdentity.logout()" style="background:none; color:#444; border:none; cursor:pointer; font-size:10px;">Déconnexion</button>
+    <button class="btn-dl" onclick="download()">Télécharger Stencil HD</button>
+    <button onclick="netlifyIdentity.logout()" style="background:none; color:#333; border:none; cursor:pointer; font-size:11px; margin-top: 10px; text-decoration: underline;">Se déconnecter</button>
 </div>
 
 <div id="main">
-    <div class="canvas-box"><canvas id="c0"></canvas></div>
-    <div class="canvas-box"><canvas id="c1"></canvas></div>
+    <div class="canvas-container"><div class="label">SOURCE</div><canvas id="c0"></canvas></div>
+    <div class="canvas-container"><div class="label">STENCIL PRÊT</div><canvas id="c1"></canvas></div>
 </div>
 
 <script>
     netlifyIdentity.init();
     const d = document;
     const cvs = [d.getElementById('c0'), d.getElementById('c1')];
-    const ctx = cvs.map(c => c.getContext('2d'));
+    const ctx = cvs.map(c => c.getContext('2d', { willReadFrequently: true }));
     let imgSource = null;
 
-    // Mise à jour des sliders
+    // Mise à jour en temps réel
     ['thresh', 'bold', 'sharp'].forEach(id => {
         d.getElementById(id).oninput = (e) => {
             d.getElementById('v-'+id).innerText = e.target.value;
@@ -90,7 +97,8 @@
         reader.onload = ev => {
             imgSource = new Image();
             imgSource.onload = () => {
-                cvs.forEach(c => { c.width = 1000; c.height = 1000 * (imgSource.height/imgSource.width); });
+                const ratio = imgSource.height / imgSource.width;
+                cvs.forEach(c => { c.width = 1500; c.height = 1500 * ratio; });
                 render();
             };
             imgSource.src = ev.target.result;
@@ -101,35 +109,31 @@
     function render() {
         if(!imgSource) return;
         const w = cvs[0].width, h = cvs[0].height;
-        const t = d.getElementById('thresh').value;
-        const b = d.getElementById('bold').value;
-        const s = d.getElementById('sharp').value;
+        const t = parseInt(d.getElementById('thresh').value);
+        const s = parseInt(d.getElementById('sharp').value);
 
-        // Vue Gauche : Original + Netteté
-        ctx[0].filter = `grayscale(1) contrast(${100 + s * 10}%)`;
+        // Vue 1 : Traitement image
+        ctx[0].filter = `grayscale(1) contrast(${100 + s * 10}%) brightness(1.1)`;
         ctx[0].drawImage(imgSource, 0, 0, w, h);
 
-        // Vue Droite : Stencil
+        // Vue 2 : Algorithme Stencil
         ctx[1].fillStyle = "white";
         ctx[1].fillRect(0,0,w,h);
-        ctx[1].filter = `grayscale(1) contrast(1000%) threshold(${t})`; // Simulation
         
-        // Algorithme de Stencil Pro
-        ctx[1].drawImage(cvs[0], 0, 0);
-        const idata = ctx[1].getImageData(0,0,w,h);
+        const idata = ctx[0].getImageData(0,0,w,h);
         const data = idata.data;
         for(let i=0; i<data.length; i+=4) {
-            const avg = (data[i] + data[i+1] + data[i+2]) / 3;
-            const val = avg > t ? 255 : 0;
-            data[i] = data[i+1] = data[i+2] = val;
+            const gray = (data[i] + data[i+1] + data[i+2]) / 3;
+            const final = gray > t ? 255 : 0;
+            data[i] = data[i+1] = data[i+2] = final;
         }
         ctx[1].putImageData(idata, 0, 0);
     }
 
     function download() {
         const link = d.createElement('a');
-        link.download = 'stencil.png';
-        link.href = cvs[1].toDataURL();
+        link.download = 'XTREME-STENCIL.png';
+        link.href = cvs[1].toDataURL('image/png', 1.0);
         link.click();
     }
 </script>
