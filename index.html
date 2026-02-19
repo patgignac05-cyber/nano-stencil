@@ -3,76 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>X-TREME ENGINE v84 — PRO</title>
+    <title>X-TREME ENGINE — RESET</title>
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@800&display=swap" rel="stylesheet">
     <style>
-        :root { --bg:#000; --accent:#c8f53a; --text:#fff; }
-        body { background: var(--bg); color: var(--text); font-family: 'Space Mono', monospace; margin: 0; overflow: hidden; }
-        
-        /* Écran de verrouillage propre */
-        #lock-screen { 
-            position: fixed; inset: 0; display: flex; flex-direction: column; 
-            align-items: center; justify-content: center; gap: 30px; z-index: 9999;
+        body { 
+            background: #000; color: #fff; font-family: sans-serif; 
+            margin: 0; display: flex; align-items: center; justify-content: center; height: 100vh; 
         }
-        .logo { font-family: 'Syne', sans-serif; font-size: 40px; color: var(--accent); letter-spacing: -2px; }
-        
-        /* Style du bouton unique */
-        .auth-trigger {
-            background: var(--accent); color: #000; padding: 18px 35px; border: none;
-            border-radius: 5px; font-weight: 800; cursor: pointer; font-size: 14px;
-            text-transform: uppercase; transition: 0.3s;
+        #login-box { text-align: center; z-index: 10; }
+        .btn-main { 
+            background: #c8f53a; color: #000; padding: 20px 40px; border: none; 
+            border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 16px; 
+            text-transform: uppercase; margin-top: 20px;
         }
-        .auth-trigger:hover { transform: scale(1.1); box-shadow: 0 0 20px rgba(200, 245, 58, 0.4); }
-
-        #app-content { display: none; padding: 20px; }
+        #app-content { display: none; padding: 20px; text-align: center; }
+        /* Correction pour forcer l'affichage du widget au-dessus de tout */
+        .netlify-identity-widget-pane { z-index: 99999 !important; }
     </style>
 </head>
 <body>
 
-<div id="lock-screen">
-    <div class="logo">X-TREME ENGINE</div>
-    <div style="color: #444; font-size: 10px; letter-spacing: 3px;">SYSTÈME DE PROTECTION ACTIF</div>
-    
-    <button class="auth-trigger" id="loginBtn">Connexion Tattoo Pro</button>
-</div>
+    <div id="login-box">
+        <h1 style="color:#c8f53a; font-size: 40px; margin:0;">X-TREME ENGINE</h1>
+        <p style="color:#666; letter-spacing: 2px;">PROTECTION SYSTÈME</p>
+        <button class="btn-main" id="startBtn">Accéder au Logiciel</button>
+    </div>
 
-<div id="app-content">
-    <h1 style="color: var(--accent)">Bienvenue, Chef.</h1>
-    <button onclick="netlifyIdentity.logout()" style="background: none; border: 1px solid #333; color: #555; cursor: pointer;">Déconnexion</button>
-    <hr style="border-color: #222; margin: 20px 0;">
-    <input type="file" id="imgIn">
-</div>
+    <div id="app-content">
+        <h1 style="color:#c8f53a">ACCÈS AUTORISÉ</h1>
+        <p>Bienvenue dans votre interface de stencil.</p>
+        <button onclick="netlifyIdentity.logout()" style="background:#222; color:#fff; border:none; padding:10px; cursor:pointer;">Se déconnecter</button>
+    </div>
 
-<script>
-    // Initialisation
-    netlifyIdentity.init();
+    <script>
+        // Initialisation propre
+        netlifyIdentity.init();
 
-    const loginBtn = document.getElementById('loginBtn');
-    const lockScreen = document.getElementById('lock-screen');
-    const appContent = document.getElementById('app-content');
+        const startBtn = document.getElementById('startBtn');
 
-    // Force l'ouverture de la fenêtre Netlify au clic
-    loginBtn.onclick = () => {
-        netlifyIdentity.open();
-    };
+        // Force l'ouverture au clic
+        startBtn.onclick = () => {
+            netlifyIdentity.open();
+        };
 
-    // Gestion de l'affichage après connexion
-    netlifyIdentity.on('init', user => {
-        if (user) {
-            lockScreen.style.display = 'none';
-            appContent.style.display = 'block';
+        // Gestion des états
+        netlifyIdentity.on('init', user => {
+            if (user) showApp();
+        });
+
+        netlifyIdentity.on('login', user => {
+            showApp();
+            netlifyIdentity.close(); // Ferme la fenêtre automatiquement après succès
+        });
+
+        netlifyIdentity.on('logout', () => {
+            location.reload();
+        });
+
+        function showApp() {
+            document.getElementById('login-box').style.display = 'none';
+            document.getElementById('app-content').style.display = 'block';
         }
-    });
-
-    netlifyIdentity.on('login', user => {
-        lockScreen.style.display = 'none';
-        appContent.style.display = 'block';
-    });
-
-    netlifyIdentity.on('logout', () => {
-        location.reload();
-    });
-</script>
+    </script>
 </body>
 </html>
