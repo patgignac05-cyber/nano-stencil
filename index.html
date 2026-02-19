@@ -11,12 +11,12 @@
         *{box-sizing:border-box;margin:0;padding:0;}
         body{font-family:'Space Mono',monospace;background:var(--bg);color:var(--text);display:flex;height:100vh;overflow:hidden;}
 
-        /* Écran de verrouillage */
-        #lock-screen { position:fixed; inset:0; background:#000; z-index:10000; display:flex; flex-direction:column; align-items:center; justify-content:center; }
-        .btn-access { background:var(--accent); color:#000; padding:18px 35px; border:none; border-radius:4px; font-weight:800; cursor:pointer; text-transform:uppercase; font-family:'Syne'; margin-top:20px; }
+        /* Écran de verrouillage - Forcé au premier plan */
+        #lock-screen { position:fixed; inset:0; background:#000; z-index:99999; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+        .btn-access { background:var(--accent); color:#000; padding:18px 35px; border:none; border-radius:4px; font-weight:800; cursor:pointer; text-transform:uppercase; font-family:'Syne'; margin-top:20px; box-shadow: 0 0 15px rgba(200,245,58,0.3); }
 
-        /* Interface Principale (Masquée par défaut) */
-        #app { display:none; width:100%; height:100%; flex-direction:row; }
+        /* Interface Principale - Cachée au départ */
+        #app { display:none; width:100%; height:100%; flex-direction:row; opacity:0; transition: opacity 0.5s; }
         
         #sidebar { width:320px; background:var(--panel); border-right:1px solid var(--border); display:flex; flex-direction:column; padding:15px; gap:8px; overflow-y:auto; }
         .logo { font-family:'Syne',sans-serif; font-weight:800; font-size:16px; color:var(--accent); margin-bottom:5px; letter-spacing:-1px; }
@@ -49,35 +49,35 @@
         #reset-curve { background: #444; color: #fff; padding: 4px 8px; font-size: 9px; }
         #auto-adjust { background: var(--accent); color: #000; padding: 12px; font-size: 11px; margin-top: 10px; }
         #dl { background: var(--accent2); color: #fff; padding: 15px; font-size: 11px; margin-top: auto; }
-        .logout-btn { background: none; color: #444; font-size: 9px; margin-top: 10px; text-decoration: underline; text-align: center; width: 100%; }
+        .logout-btn { background: none; color: #444; font-size: 9px; margin-top: 10px; text-decoration: underline; text-align: center; width: 100%; cursor: pointer; }
     </style>
 </head>
 <body>
 
 <div id="lock-screen">
     <div class="logo" style="font-size:30px; margin-bottom:10px;">X-TREME ENGINE</div>
-    <div style="font-size:10px; color:#555; letter-spacing:2px;">SYSTÈME DE PROTECTION ACTIF</div>
-    <button class="btn-access" onclick="netlifyIdentity.open()">CONNEXION TATTOO PRO</button>
+    <div style="font-size:10px; color:#555; letter-spacing:2px;">SYSTÈME DE PROTECTION PRO</div>
+    <button class="btn-access" id="loginBtn">ACCÉDER AU MOTEUR</button>
 </div>
 
 <div id="app">
     <div id="sidebar">
         <div class="logo">X-TREME ENGINE v84</div>
-        <div class="section-title">1. PRÉ-TRAITEMENT SOURCE</div>
+        <div class="section-title">1. SOURCE</div>
         <div class="upload-zone"><input type="file" id="imgIn" accept="image/*"><div style="font-size:10px; color:var(--accent)">IMPORTER PHOTO</div></div>
         
         <div id="curvesControl">
             <div id="curvesControlHeader">
-                <div style="font-size: 10px; font-weight: bold;">TONAL CURVES</div>
+                <div style="font-size: 9px; font-weight: bold;">TONAL CURVES</div>
                 <div><button id="auto-curve">AUTO</button> <button id="reset-curve">RESET</button></div>
             </div>
             <div id="curvesContainer"><canvas id="curvesCanvas"></canvas></div>
         </div>
 
-        <div class="section-title">2. PALETTE GREYWASH</div>
+        <div class="section-title">2. GREYWASH PALETTE</div>
         <div id="sliders"></div>
 
-        <div class="section-title">3. STENCIL PRECISION</div>
+        <div class="section-title">3. PRECISION</div>
         <div class="param-group"><div class="param-label">Lissage <span id="v-soft">0.80</span></div><input type="range" id="soft" min="0" max="2.0" value="0.8" step="0.05"></div>
         <div class="param-group"><div class="param-label">Sensibilité <span id="v-micro">30</span></div><input type="range" id="micro" min="1" max="50" value="30"></div>
         <div class="param-group"><div class="param-label">Épaisseur <span id="v-thick">0.5</span></div><input type="range" id="thick" min="0.1" max="2.0" value="0.5" step="0.1"></div>
@@ -85,7 +85,7 @@
         
         <button id="auto-adjust">AUTO-STENCIL</button>
         <button id="dl">EXPORTER LE STENCIL</button>
-        <button class="logout-btn" onclick="netlifyIdentity.logout()">DÉCONNEXION</button>
+        <div class="logout-btn" id="logoutBtn">DÉCONNEXION</div>
     </div>
 
     <div id="main-view">
@@ -97,20 +97,40 @@
 </div>
 
 <script>
-// --- LOGIQUE DE CONNEXION ---
-netlifyIdentity.init();
-netlifyIdentity.on('init', user => { if(user) startApp(); });
-netlifyIdentity.on('login', user => { startApp(); netlifyIdentity.close(); });
-netlifyIdentity.on('logout', () => { location.reload(); });
+// --- GESTION DE LA CONNEXION SÉCURISÉE ---
+const loginBtn = document.getElementById('loginBtn');
+const logoutBtn = document.getElementById('logoutBtn');
+const lockScreen = document.getElementById('lock-screen');
+const app = document.getElementById('app');
 
-function startApp() {
-    document.getElementById('lock-screen').style.display = 'none';
-    document.getElementById('app').style.display = 'flex';
-    runUniversalEngine();
+loginBtn.addEventListener('click', () => netlifyIdentity.open());
+logoutBtn.addEventListener('click', () => netlifyIdentity.logout());
+
+// Déclencheur au chargement
+netlifyIdentity.on('init', user => {
+    if (user) { unlock(); }
+});
+
+// Déclencheur à la connexion
+netlifyIdentity.on('login', user => {
+    unlock();
+    netlifyIdentity.close();
+});
+
+// Déclencheur à la déconnexion
+netlifyIdentity.on('logout', () => {
+    location.reload();
+});
+
+function unlock() {
+    lockScreen.style.display = 'none';
+    app.style.display = 'flex';
+    setTimeout(() => { app.style.opacity = '1'; }, 50);
+    initEngine(); // Lance le moteur de stencil
 }
 
-// --- MOTEUR UNIVERSAL ENGINE ---
-function runUniversalEngine() {
+// --- MOTEUR X-TREME v84 (UNIVERSAL) ---
+function initEngine() {
     const d = document;
     const cvs = ['c0', 'c1', 'c2', 'c3'].map(id => d.getElementById(id));
     const ctx = cvs.map(c => c.getContext('2d', { willReadFrequently: true }));
@@ -123,7 +143,7 @@ function runUniversalEngine() {
     let curveLUT = new Uint8Array(256); 
 
     const tempCanvas = d.createElement('canvas');
-    const tempCtx = tempCanvas.getContext('2d', { willReadFrequently: true });
+    const tempCtx = tempCanvas.getContext('2d');
 
     function calculateCurveLUT() {
         curvePoints.sort((a, b) => a.x - b.x);
@@ -136,7 +156,7 @@ function runUniversalEngine() {
         }
     }
 
-    // Interaction Courbes
+    // Gestion Courbes
     let activePtIdx = -1;
     curvesCanvas.onpointerdown = e => {
         curvesCanvas.setPointerCapture(e.pointerId);
@@ -144,7 +164,7 @@ function runUniversalEngine() {
         const mx = (e.clientX - rect.left) * (255 / curvesCanvas.width);
         const my = 255 - (e.clientY - rect.top) * (255 / curvesCanvas.height);
         activePtIdx = curvePoints.findIndex(p => Math.hypot(p.x - mx, p.y - my) < 15);
-        if (activePtIdx === -1 && mx > 5 && mx < 250) {
+        if (activePtIdx === -1 && mx > 10 && mx < 245) {
             curvePoints.push({ x: Math.round(mx), y: Math.round(my) });
             curvePoints.sort((a, b) => a.x - b.x);
             activePtIdx = curvePoints.findIndex(p => p.x === Math.round(mx));
@@ -156,7 +176,7 @@ function runUniversalEngine() {
         const rect = curvesCanvas.getBoundingClientRect();
         const mx = (e.clientX - rect.left) * (255 / curvesCanvas.width);
         const my = 255 - (e.clientY - rect.top) * (255 / curvesCanvas.height);
-        curvePoints[activePtIdx].x = Math.max(curvePoints[activePtIdx-1].x+2, Math.min(curvePoints[activePtIdx+1].x-2, mx));
+        curvePoints[activePtIdx].x = Math.max(curvePoints[activePtIdx-1].x+5, Math.min(curvePoints[activePtIdx+1].x-5, mx));
         curvePoints[activePtIdx].y = Math.max(0, Math.min(255, my));
         drawAll();
     };
@@ -178,17 +198,12 @@ function runUniversalEngine() {
                 cvs.forEach(c => { c.width = w; c.height = h; });
                 tempCanvas.width = imgSource.width; tempCanvas.height = imgSource.height;
                 curvesCanvas.width = curvesCanvas.offsetWidth; curvesCanvas.height = curvesCanvas.offsetHeight;
-                autoAdjustCurve();
+                drawAll();
             };
             imgSource.src = ev.target.result;
         };
         reader.readAsDataURL(e.target.files[0]);
     };
-
-    function autoAdjustCurve() {
-        if(!imgSource) return;
-        calculateCurveLUT(); drawAll();
-    }
 
     function drawAll() {
         calculateCurveLUT();
@@ -246,19 +261,10 @@ function runUniversalEngine() {
         ctx[3].putImageData(fData, 0, 0);
     }
 
-    d.getElementById('auto-curve').onclick = autoAdjustCurve;
+    d.getElementById('auto-curve').onclick = () => { curvePoints = [{x:0,y:0},{x:80,y:20},{x:180,y:230},{x:255,y:255}]; drawAll(); };
     d.getElementById('reset-curve').onclick = () => { curvePoints=[{x:0,y:0},{x:255,y:255}]; drawAll(); };
-    d.getElementById('dl').onclick = () => { const a=d.createElement('a'); a.download='stencil.png'; a.href=cvs[3].toDataURL(); a.click(); };
+    d.getElementById('dl').onclick = () => { const a=d.createElement('a'); a.download='stencil-pro.png'; a.href=cvs[3].toDataURL(); a.click(); };
     d.body.oninput = e => { if(e.target.type==='range'){ d.getElementById('v-'+e.target.id).innerText = e.target.value; drawAll(); } };
-    
-    // Zoom fenêtres
-    d.querySelectorAll('.box').forEach(box => {
-        box.onclick = () => {
-            const isFull = box.classList.contains('fullscreen');
-            d.querySelectorAll('.box').forEach(b => b.classList.remove('fullscreen'));
-            if (!isFull) box.classList.add('fullscreen');
-        };
-    });
 }
 </script>
 </body>
