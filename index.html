@@ -11,11 +11,9 @@
         *{box-sizing:border-box;margin:0;padding:0;}
         body{font-family:'Space Mono',monospace;background:var(--bg);color:var(--text);display:flex;height:100vh;overflow:hidden;}
 
-        /* Écran de verrouillage - Design minimaliste */
+        /* Écran de verrouillage */
         #lock-screen { position:fixed; inset:0; background:#000; z-index:10000; display:flex; flex-direction:column; align-items:center; justify-content:center; }
-        .lock-content { text-align:center; }
-        .btn-access { background:var(--accent); color:#000; padding:18px 35px; border:none; border-radius:4px; font-weight:800; cursor:pointer; text-transform:uppercase; font-family:'Syne'; margin-top:20px; transition: 0.3s; }
-        .btn-access:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(200,245,58,0.4); }
+        .btn-access { background:var(--accent); color:#000; padding:18px 35px; border:none; border-radius:4px; font-weight:800; cursor:pointer; text-transform:uppercase; font-family:'Syne'; margin-top:20px; }
 
         /* Interface Principale (Masquée par défaut) */
         #app { display:none; width:100%; height:100%; flex-direction:row; }
@@ -25,7 +23,7 @@
         .section-title { font-size:8px; letter-spacing:1.5px; text-transform:uppercase; color:#888; border-bottom:1px solid var(--border); padding-bottom:3px; margin-top:10px; }
         
         .upload-zone { border:2px dashed var(--accent); border-radius:6px; padding:15px; text-align:center; position:relative; cursor:pointer; background:rgba(200,245,58,0.05); }
-        .upload-zone input { position:absolute; inset:0; opacity:0; cursor:pointer; }
+        .upload-zone input { position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%; }
         
         .param-group { display:flex; flex-direction:column; gap:4px; margin-top:8px; }
         .param-label { display:flex; justify-content:space-between; font-size:9px; color:#aaa; }
@@ -40,14 +38,228 @@
         #curvesCanvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; cursor: crosshair; touch-action: none; }
 
         #main-view { flex:1; display:grid; grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr; gap:10px; padding:10px; background:#000; }
-        .box { background:#0a0a0c; border:1px solid #1a1a1a; border-radius:8px; position:relative; display:flex; align-items:center; justify-content:center; overflow:hidden; cursor: pointer; }
+        .box { background:#0a0a0c; border:1px solid #1a1a1a; border-radius:8px; position:relative; display:flex; align-items:center; justify-content:center; overflow:hidden; }
         .box-label { position:absolute; top:0; left:0; background:rgba(0,0,0,0.8); font-size:8px; color:var(--accent); padding:5px 10px; z-index:10; border-bottom-right-radius:6px; font-weight:bold; }
         
-        /* Zoom fenêtre */
         .box.fullscreen { position:fixed!important; inset:15px; left:335px; z-index:5000; border:2px solid var(--accent); background: #000; }
         canvas { max-width:100%; max-height:100%; object-fit:contain; }
 
-        button { border:none; border-radius:4px; font-weight:800; cursor:pointer; text-transform:uppercase; transition: 0.2s; }
+        button { border:none; border-radius:4px; font-weight:800; cursor:pointer; text-transform:uppercase; }
         #auto-curve { background: var(--accent); color: #000; padding: 4px 8px; font-size: 9px; }
         #reset-curve { background: #444; color: #fff; padding: 4px 8px; font-size: 9px; }
-        #auto-adjust { background: var(--accent); color: #000; padding: 12px; font
+        #auto-adjust { background: var(--accent); color: #000; padding: 12px; font-size: 11px; margin-top: 10px; }
+        #dl { background: var(--accent2); color: #fff; padding: 15px; font-size: 11px; margin-top: auto; }
+        .logout-btn { background: none; color: #444; font-size: 9px; margin-top: 10px; text-decoration: underline; text-align: center; width: 100%; }
+    </style>
+</head>
+<body>
+
+<div id="lock-screen">
+    <div class="logo" style="font-size:30px; margin-bottom:10px;">X-TREME ENGINE</div>
+    <div style="font-size:10px; color:#555; letter-spacing:2px;">SYSTÈME DE PROTECTION ACTIF</div>
+    <button class="btn-access" onclick="netlifyIdentity.open()">CONNEXION TATTOO PRO</button>
+</div>
+
+<div id="app">
+    <div id="sidebar">
+        <div class="logo">X-TREME ENGINE v84</div>
+        <div class="section-title">1. PRÉ-TRAITEMENT SOURCE</div>
+        <div class="upload-zone"><input type="file" id="imgIn" accept="image/*"><div style="font-size:10px; color:var(--accent)">IMPORTER PHOTO</div></div>
+        
+        <div id="curvesControl">
+            <div id="curvesControlHeader">
+                <div style="font-size: 10px; font-weight: bold;">TONAL CURVES</div>
+                <div><button id="auto-curve">AUTO</button> <button id="reset-curve">RESET</button></div>
+            </div>
+            <div id="curvesContainer"><canvas id="curvesCanvas"></canvas></div>
+        </div>
+
+        <div class="section-title">2. PALETTE GREYWASH</div>
+        <div id="sliders"></div>
+
+        <div class="section-title">3. STENCIL PRECISION</div>
+        <div class="param-group"><div class="param-label">Lissage <span id="v-soft">0.80</span></div><input type="range" id="soft" min="0" max="2.0" value="0.8" step="0.05"></div>
+        <div class="param-group"><div class="param-label">Sensibilité <span id="v-micro">30</span></div><input type="range" id="micro" min="1" max="50" value="30"></div>
+        <div class="param-group"><div class="param-label">Épaisseur <span id="v-thick">0.5</span></div><input type="range" id="thick" min="0.1" max="2.0" value="0.5" step="0.1"></div>
+        <div class="param-group"><div class="param-label">Intensité Bleu <span id="v-dark">60</span></div><input type="range" id="dark" min="0" max="100" value="60"></div>
+        
+        <button id="auto-adjust">AUTO-STENCIL</button>
+        <button id="dl">EXPORTER LE STENCIL</button>
+        <button class="logout-btn" onclick="netlifyIdentity.logout()">DÉCONNEXION</button>
+    </div>
+
+    <div id="main-view">
+        <div class="box" id="box0"><div class="box-label">SOURCE FILTRÉE</div><canvas id="c0"></canvas></div>
+        <div class="box" id="box1"><div class="box-label">ZONES TONS</div><canvas id="c1"></canvas></div>
+        <div class="box" id="box2"><div class="box-label">GRADIENTS</div><canvas id="c2"></canvas></div>
+        <div class="box" id="box3"><div class="box-label">STENCIL FINAL</div><canvas id="c3"></canvas></div>
+    </div>
+</div>
+
+<script>
+// --- LOGIQUE DE CONNEXION ---
+netlifyIdentity.init();
+netlifyIdentity.on('init', user => { if(user) startApp(); });
+netlifyIdentity.on('login', user => { startApp(); netlifyIdentity.close(); });
+netlifyIdentity.on('logout', () => { location.reload(); });
+
+function startApp() {
+    document.getElementById('lock-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'flex';
+    runUniversalEngine();
+}
+
+// --- MOTEUR UNIVERSAL ENGINE ---
+function runUniversalEngine() {
+    const d = document;
+    const cvs = ['c0', 'c1', 'c2', 'c3'].map(id => d.getElementById(id));
+    const ctx = cvs.map(c => c.getContext('2d', { willReadFrequently: true }));
+    let imgSource = null;
+    const BASE_TONS = [0, 51, 102, 153, 204, 255];
+
+    const curvesCanvas = d.getElementById('curvesCanvas');
+    const curvesCtx = curvesCanvas.getContext('2d');
+    let curvePoints = [{ x: 0, y: 0 }, { x: 255, y: 255 }];
+    let curveLUT = new Uint8Array(256); 
+
+    const tempCanvas = d.createElement('canvas');
+    const tempCtx = tempCanvas.getContext('2d', { willReadFrequently: true });
+
+    function calculateCurveLUT() {
+        curvePoints.sort((a, b) => a.x - b.x);
+        for (let j = 0; j < curvePoints.length - 1; j++) {
+            const p1 = curvePoints[j], p2 = curvePoints[j + 1];
+            const dx = p2.x - p1.x, dy = p2.y - p1.y;
+            for (let x = p1.x; x <= p2.x; x++) {
+                curveLUT[x] = Math.max(0, Math.min(255, Math.round(p1.y + (x - p1.x) * (dy/(dx||1)))));
+            }
+        }
+    }
+
+    // Interaction Courbes
+    let activePtIdx = -1;
+    curvesCanvas.onpointerdown = e => {
+        curvesCanvas.setPointerCapture(e.pointerId);
+        const rect = curvesCanvas.getBoundingClientRect();
+        const mx = (e.clientX - rect.left) * (255 / curvesCanvas.width);
+        const my = 255 - (e.clientY - rect.top) * (255 / curvesCanvas.height);
+        activePtIdx = curvePoints.findIndex(p => Math.hypot(p.x - mx, p.y - my) < 15);
+        if (activePtIdx === -1 && mx > 5 && mx < 250) {
+            curvePoints.push({ x: Math.round(mx), y: Math.round(my) });
+            curvePoints.sort((a, b) => a.x - b.x);
+            activePtIdx = curvePoints.findIndex(p => p.x === Math.round(mx));
+        }
+        drawAll();
+    };
+    curvesCanvas.onpointermove = e => {
+        if (activePtIdx === -1 || activePtIdx === 0 || activePtIdx === curvePoints.length - 1) return;
+        const rect = curvesCanvas.getBoundingClientRect();
+        const mx = (e.clientX - rect.left) * (255 / curvesCanvas.width);
+        const my = 255 - (e.clientY - rect.top) * (255 / curvesCanvas.height);
+        curvePoints[activePtIdx].x = Math.max(curvePoints[activePtIdx-1].x+2, Math.min(curvePoints[activePtIdx+1].x-2, mx));
+        curvePoints[activePtIdx].y = Math.max(0, Math.min(255, my));
+        drawAll();
+    };
+    curvesCanvas.onpointerup = () => activePtIdx = -1;
+
+    // Sliders Greywash
+    const sliderBox = d.getElementById('sliders');
+    sliderBox.innerHTML = "";
+    ["Noir", "Sombre", "Moyen", "Clair", "X-Clair", "Blanc"].forEach((label, i) => {
+        sliderBox.innerHTML += `<div class="param-group"><div class="param-label">${label} <span id="v-t${i+1}">0</span></div><input type="range" id="t${i+1}" min="-120" max="120" value="0"></div>`;
+    });
+
+    d.getElementById('imgIn').onchange = e => {
+        const reader = new FileReader();
+        reader.onload = ev => {
+            imgSource = new Image();
+            imgSource.onload = () => {
+                const w = 1100, h = w / (imgSource.width / imgSource.height);
+                cvs.forEach(c => { c.width = w; c.height = h; });
+                tempCanvas.width = imgSource.width; tempCanvas.height = imgSource.height;
+                curvesCanvas.width = curvesCanvas.offsetWidth; curvesCanvas.height = curvesCanvas.offsetHeight;
+                autoAdjustCurve();
+            };
+            imgSource.src = ev.target.result;
+        };
+        reader.readAsDataURL(e.target.files[0]);
+    };
+
+    function autoAdjustCurve() {
+        if(!imgSource) return;
+        calculateCurveLUT(); drawAll();
+    }
+
+    function drawAll() {
+        calculateCurveLUT();
+        // Graphique Courbes
+        const cw = curvesCanvas.width, ch = curvesCanvas.height;
+        curvesCtx.clearRect(0, 0, cw, ch);
+        curvesCtx.strokeStyle = '#c8f53a'; curvesCtx.lineWidth = 2;
+        curvesCtx.beginPath();
+        for (let i = 0; i < 256; i++) {
+            const gx = i * (cw / 255), gy = ch - (curveLUT[i] * (ch / 255));
+            i === 0 ? curvesCtx.moveTo(gx, gy) : curvesCtx.lineTo(gx, gy);
+        }
+        curvesCtx.stroke();
+        curvePoints.forEach(p => {
+            curvesCtx.fillStyle = '#c8f53a'; curvesCtx.beginPath();
+            curvesCtx.arc(p.x*(cw/255), ch-(p.y*(ch/255)), 4, 0, 7); curvesCtx.fill();
+        });
+
+        if (!imgSource) return;
+        const w = cvs[0].width, h = cvs[0].height;
+        tempCtx.drawImage(imgSource, 0, 0, tempCanvas.width, tempCanvas.height);
+        let idat = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
+        for (let i = 0; i < idat.data.length; i += 4) {
+            idat.data[i] = curveLUT[idat.data[i]]; idat.data[i+1] = curveLUT[idat.data[i+1]]; idat.data[i+2] = curveLUT[idat.data[i+2]];
+        }
+        tempCtx.putImageData(idat, 0, 0);
+        ctx[0].drawImage(tempCanvas, 0, 0, w, h);
+
+        const micro = d.getElementById('micro').value, soft = d.getElementById('soft').value;
+        const thick = d.getElementById('thick').value, dark = d.getElementById('dark').value;
+        const pal = BASE_TONS.map((b, i) => Math.max(0, Math.min(255, b + parseInt(d.getElementById('t'+(i+1)).value))));
+
+        ctx[2].filter = `grayscale(1) blur(${soft}px)`;
+        ctx[2].drawImage(cvs[0], 0, 0);
+        const px = ctx[2].getImageData(0, 0, w, h).data;
+        
+        const qData = ctx[1].createImageData(w, h);
+        for (let i = 0; i < px.length; i += 4) {
+            let q = pal.reduce((p, c) => Math.abs(c - px[i]) < Math.abs(p - px[i]) ? c : p);
+            qData.data[i] = qData.data[i+1] = qData.data[i+2] = q; qData.data[i+3] = 255;
+        }
+        ctx[1].putImageData(qData, 0, 0);
+
+        ctx[3].fillStyle = "white"; ctx[3].fillRect(0, 0, w, h);
+        const fData = ctx[3].getImageData(0, 0, w, h);
+        for (let y = 1; y < h - 1; y++) {
+            for (let x = 1; x < w - 1; x++) {
+                let i = (y * w + x) * 4;
+                if (Math.abs(px[i] - px[i+4]) > micro/3 || Math.abs(px[i] - px[i+w*4]) > micro/3) {
+                    fData.data[i] = dark; fData.data[i+1] = dark; fData.data[i+2] = dark+40;
+                    fData.data[i+3] = thick < 1 ? thick*255 : 255;
+                }
+            }
+        }
+        ctx[3].putImageData(fData, 0, 0);
+    }
+
+    d.getElementById('auto-curve').onclick = autoAdjustCurve;
+    d.getElementById('reset-curve').onclick = () => { curvePoints=[{x:0,y:0},{x:255,y:255}]; drawAll(); };
+    d.getElementById('dl').onclick = () => { const a=d.createElement('a'); a.download='stencil.png'; a.href=cvs[3].toDataURL(); a.click(); };
+    d.body.oninput = e => { if(e.target.type==='range'){ d.getElementById('v-'+e.target.id).innerText = e.target.value; drawAll(); } };
+    
+    // Zoom fenêtres
+    d.querySelectorAll('.box').forEach(box => {
+        box.onclick = () => {
+            const isFull = box.classList.contains('fullscreen');
+            d.querySelectorAll('.box').forEach(b => b.classList.remove('fullscreen'));
+            if (!isFull) box.classList.add('fullscreen');
+        };
+    });
+}
+</script>
+</body>
+</html>
